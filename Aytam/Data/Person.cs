@@ -11,8 +11,29 @@ namespace Aytam.Data
         public string CPR { get; set; }
         public Gender Gender { get; set; }
         public DateTime DOB { get; set; }
-        
         public ContactInfo ContactInfo { get; set; }
+
+        public string FullName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(MiddleNames))
+                {
+                    return FirstName + " " + LastName;
+                }
+
+                return FirstName + " " + MiddleNames + " " + LastName;
+            }
+        }
+
+        public int Age
+        {
+            get
+            {
+                return (int)(DateTime.Now.Subtract(DOB).TotalDays / 365);
+            }
+        }
+
 
 
     }

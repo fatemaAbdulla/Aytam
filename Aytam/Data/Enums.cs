@@ -9,4 +9,16 @@ namespace Aytam.Data
         
         
     }
+    public enum MaritalStatus
+    {
+        NotSpecified = 0,
+        Married = 1,
+        Single  = 2,
+        Widowed = 3,
+        Divorced = 4
+    }
+    public enum FinancialStatus
+    {
+
+    }
 }

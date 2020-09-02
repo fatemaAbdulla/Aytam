@@ -1,6 +1,6 @@
 ﻿namespace Aytam.Data
 {
-    public class Sponser
+    public class Sponser : Person
     {
     }
 }
