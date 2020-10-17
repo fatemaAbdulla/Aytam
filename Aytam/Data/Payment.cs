@@ -5,6 +5,7 @@ namespace Aytam.Data
 {
     public class Payment
     {
+        public Payment()  {  }
         public Payment(decimal amount,bool isExpense, decimal oldBalance)
         {
             Amount = amount;
@@ -12,6 +13,7 @@ namespace Aytam.Data
             _Balance = isExpense ? oldBalance - amount : oldBalance + amount;
 
         }
+
         private decimal _Balance;
         public int ID { get; set; }
         public decimal Amount { get; set; }
