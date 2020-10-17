@@ -2,6 +2,9 @@
 
 namespace Aytam.Data
 {
+    /// <summary>
+    /// used for guardian's income
+    /// </summary>
     public class Income
     {
         public int ID { get; set; }

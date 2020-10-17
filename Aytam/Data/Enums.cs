@@ -35,7 +35,7 @@ namespace Aytam.Data
         HalfYearly = 4,
         Annualy = 5,
     }
-    public enum PaymentType
+    public enum PaymentMethod
     {
         NotSpecified = 0,
         Cash = 1,

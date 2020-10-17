@@ -1,5 +1,8 @@
-﻿namespace Aytam.Data
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Aytam.Data
 {
+    [Owned]
     public class Address
     {
         public string AddressLine1 { get; set; }

@@ -19,7 +19,7 @@ namespace Aytam.Data
         /// <summary>
         /// this is the type of payment e.g (Online, Bank Transfer..)
         /// </summary>
-        public PaymentType PaymentType { get; set; } = PaymentType.NotSpecified;
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.NotSpecified;
         public Person? PaidBy { get; set; }
         public Person? RecievedBy { get; set; }
         public Person? RecievedOnBehalfOf { get; set; }
@@ -29,11 +29,8 @@ namespace Aytam.Data
         /// true if this payment is expense, false if it's income
         /// </summary>
         public bool IsExpense { get; set; }
-        public List<Document> Documents { get; set; }
-        /// <summary>
-        /// if this payment is outgoing this is specified 
-        /// </summary>
-        public ExpenseType? ExpenseType { get; set; }
+        public List<Document>? Documents { get; set; }
+        public PaymentType? PaymentType { get; set; }
    
         public decimal BalanceAfterTransaction
         {
