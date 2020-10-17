@@ -37,7 +37,7 @@ namespace Aytam.Data
         {
             get
             {
-                return (int)(DateTime.Now.Subtract(DOB).TotalDays / 365);
+                return (int)(DateTime.UtcNow.Subtract(DOB).TotalDays / 365);
             }
         }
 

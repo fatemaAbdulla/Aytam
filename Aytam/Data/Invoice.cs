@@ -32,7 +32,7 @@ namespace Aytam.Data
         {
             get
             {
-                if (AmountDue > 0 && DateTime.Now > DueDate)
+                if (AmountDue > 0 && DateTime.UtcNow > DueDate)
                 {
                     return InvoicePaymentStatus.Overdue;
                 }
