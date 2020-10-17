@@ -19,6 +19,28 @@ namespace Aytam.Data
     }
     public enum FinancialStatus
     {
+        NotSpecified = 0,
+        VeryLow = 1,
+        Low = 2,
+        Average = 3,
+        High = 4,
 
+    }
+    public enum PaymentFrequency
+    {
+        Weekly = 0,
+        Fortnightly = 1,
+        Monthly = 2,
+        Quarterly = 3,
+        HalfYearly = 4,
+        Annualy = 5,
+    }
+    public enum PaymentType
+    {
+        NotSpecified = 0,
+        Cash = 1,
+        OnlinePayment = 2,
+        BankTransfer = 3,
+        Cheque = 4,
     }
 }

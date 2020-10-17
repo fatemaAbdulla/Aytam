@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Aytam.Data
 {
@@ -12,6 +13,12 @@ namespace Aytam.Data
         public Gender Gender { get; set; }
         public DateTime DOB { get; set; }
         public ContactInfo ContactInfo { get; set; }
+        public MaritalStatus MaritalStatus { get; set; }
+        public List<Payment> Payments { get; set; }
+        public string Notes { get; set; }
+        public string image { get; set; }
+        public List<Document> Documents { get; set; }
+
 
         public string FullName
         {
@@ -34,7 +41,7 @@ namespace Aytam.Data
             }
         }
 
-
+        
 
     }
 }

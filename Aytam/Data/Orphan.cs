@@ -9,11 +9,7 @@ namespace Aytam.Data
         public Parent Father { get; set; }
         public Parent Mother { get; set; }
         public Guardian Guardian { get; set; }
-        public ICollection<Person> Sponsers { get; set; }
-      
-
-
-
-
+        public List<Sponsership> Sponserships { get; set; }
+        
     }
 }

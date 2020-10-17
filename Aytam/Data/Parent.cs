@@ -11,7 +11,7 @@ namespace Aytam.Data
         }
 
         public DateTime? DateOfDeath { get; set; }
-        public ICollection<Orphan> Children { get; set; }
+        public List<Orphan> Children { get; set; }
 
         public bool IsDead
         {
