@@ -43,4 +43,11 @@ namespace Aytam.Data
         BankTransfer = 3,
         Cheque = 4,
     }
+    public enum InvoicePaymentStatus
+    {
+        UnPaid = 0,
+        PartiallyPaid = 1,
+        Paid = 2,
+        Overdue = 3,
+    }
 }

@@ -12,5 +12,23 @@ namespace Aytam.Data
             : base(options)
         {
         }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<IncomeType> IncomeTypes { get; set; }
+
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder
+                .Entity<Document>()
+                .OwnsOne<DocumentType>(d => d.Type)
+                .WithOwner();
+
+        }
     }
+
+   
 }

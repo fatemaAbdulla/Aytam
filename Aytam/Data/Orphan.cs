@@ -10,6 +10,7 @@ namespace Aytam.Data
         public Parent Mother { get; set; }
         public Guardian Guardian { get; set; }
         public List<Sponsership> Sponserships { get; set; }
+        public bool isSayed { get; set; }
         
     }
 }
