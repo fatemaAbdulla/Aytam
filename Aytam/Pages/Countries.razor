@@ -1,0 +1,69 @@
+﻿@page "/countries"
+@using Aytam.Data
+@inject ApplicationDbContext _db
+<h1>Countries</h1>
+@if (!string.IsNullOrEmpty(_ErrorMessage))
+{ 
+    <div class="alert alert-danger" role="alert">
+        @_ErrorMessage
+    </div>
+}
+<div class="form-group">
+    <label for="CountryName">Country Name:</label><br />
+    <input @bind="_CountryName" type="text" class="form-control" id="CountryName" /><br />
+</div>
+<div class="form-group">
+    <label for="CountryCode">Country Code:</label><br />
+    <input @bind="_CountryCode" type="text" class="form-control" id="CountryCode" /><br />
+</div>
+
+@if (!string.IsNullOrEmpty(_CountryName) && !string.IsNullOrEmpty(_CountryCode))
+{
+    <button class="btn btn-primary" @onclick="AddCountry">Add Country</button>
+}
+
+
+<ul>
+    @foreach (var item in CountriesList)
+    {
+        <li>@item.CountryName - @item.CountryCode </li>
+    }
+</ul>
+
+@code {
+    private List<Country> CountriesList = new List<Country>();
+    private string _CountryCode = "";
+    private string _CountryName = "";
+    private string _ErrorMessage = "";
+    private void AddCountry()
+    {
+        Country country = new Country
+        {
+            CountryName = _CountryName,
+            CountryCode = _CountryCode
+        };
+        try
+        {
+            _db.Countries.Add(country);
+            _db.SaveChanges();
+            CountriesList.Add(country);
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+        }
+
+
+        _CountryName = "";
+        _CountryCode = "";
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        CountriesList = _db.Countries.ToList();
+    }
+
+
+
+}
