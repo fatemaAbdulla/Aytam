@@ -4,43 +4,66 @@
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext _db
 <h1>Countries</h1>
+
 <AddCountry OnCountryAdded="AddCountryToList"></AddCountry>
-<AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
+@if (CountriesList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Country Code</th>
-            <th scope="col">Country Name</th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in CountriesList)
-        {
+}
+else
+{
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+    <EditCountry Country="@CountryToEdit" OnCountryUpdated="UpdateCountry"></EditCountry>
+
+    <table class="table">
+        <thead>
             <tr>
-                <td>@item.CountryCode</td>
-                <td>@item.CountryName</td>
-                <td><button type="button" class="btn btn-outline-danger" @onclick="async () => {await DeleteCountry(item.CountryCode); }">X</button></td>
+                <th scope="col">Country Code</th>
+                <th scope="col">Country Name</th>
+                <th scope="col"></th>
             </tr>
-        }
+        </thead>
 
-    </tbody>
-</table>
+        <tbody>
+            @foreach (var item in CountriesList)
+            {
+                <tr>
+                    <td>@item.CountryCode</td>
+                    <td>@item.CountryName</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteCountry(item.CountryCode); }">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button> &nbsp; &nbsp;
+                        <button type="button" class="btn btn-outline-dark" @onclick="() => { EditCountry(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                    </td>
 
+                </tr>
+            }
+
+        </tbody>
+
+
+    </table>
+}
 
 
 @code {
-    private List<Country> CountriesList = new List<Country>();
+    private List<Country> CountriesList;
     private string _Message = "";
     private AlertType _AlertType = AlertType.Secondary;
+    private Country CountryToEdit = null;
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
         CountriesList = await _db.Countries.ToListAsync();
+
     }
+
     private async Task DeleteCountry(string cc)
     {
         try
@@ -65,5 +88,18 @@
         CountriesList.Add(country);
     }
 
+    private void EditCountry(Country country)
+    {
+        CountryToEdit = country;
+    }
+
+    private void UpdateCountry(Country newCountry)
+    {
+        CountryToEdit = null;
+        int i = CountriesList.FindIndex(c => c.CountryCode == newCountry.CountryCode);
+        CountriesList.RemoveAt(i);
+        CountriesList.Insert(i, newCountry);
+
+    }
 
 }

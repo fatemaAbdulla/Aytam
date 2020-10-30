@@ -1,0 +1,75 @@
+﻿@using Aytam.Data
+@inject ApplicationDbContext _db
+
+@if (Country != null)
+{
+    <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit @Country.CountryName</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <AlertMessage Message="@Message" AlertType="@AlertType"></AlertMessage>
+                    <div class="form-group">
+                        <label for="CountryName">Country Name:</label><br />
+                        <input @bind="Country.CountryName" @bind:event="oninput" type="text" class="form-control" id="CountryName" /><br />
+                    </div>
+                    <div class="form-group">
+                        <label for="CountryCode">Country Code:</label><br />
+                        <input @bind="Country.CountryCode" @bind:event="oninput" type="text" class="form-control" id="CountryCode" readonly/><br />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="Save">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+@code {
+
+    [Parameter]
+    public Country Country { get; set; }
+    private string Message = "";
+    private AlertType AlertType = AlertType.Secondary;
+    [Parameter]
+    public EventCallback<Country> OnCountryUpdated { get; set; }
+    private void Close()
+
+    {
+        this.Country = null;
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Country != null)
+        {
+            _db.Attach(this.Country);
+        }
+        return base.OnParametersSetAsync();
+    }
+    private async Task Save()
+    {
+        try
+        {
+            await _db.SaveChangesAsync();
+            await OnCountryUpdated.InvokeAsync(this.Country);
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            this.AlertType = AlertType.Danger;
+        }
+
+    }
+
+
+}
