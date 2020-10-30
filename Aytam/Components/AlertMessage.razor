@@ -1,0 +1,42 @@
+﻿@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="@AlertClass()" role="alert">
+        @Message
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public AlertType AlertType { get; set; }
+
+    private string AlertClass()
+    {
+        switch (AlertType)
+        {
+            case AlertType.Danger:
+                return "alert alert-danger";
+            case AlertType.Dark:
+                return "alert alert-dark";
+            case AlertType.Light:
+                return "alert alert-light";
+            case AlertType.Primary:
+                return "alert alert-primary";
+            case AlertType.Secondary:
+                return "alert alert-secondary";
+            case AlertType.Info:
+                return "alert alert-info";
+            case AlertType.Success:
+                return "alert alert-success";
+            case AlertType.Warning:
+                return "alert alert-warning";
+            default:
+                return "alert alert-secondary";
+        }
+
+    }
+
+}

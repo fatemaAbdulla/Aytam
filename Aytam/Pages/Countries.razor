@@ -1,69 +1,69 @@
 ﻿@page "/countries"
 @using Aytam.Data
+@using Aytam.Components
+@using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext _db
 <h1>Countries</h1>
-@if (!string.IsNullOrEmpty(_ErrorMessage))
-{ 
-    <div class="alert alert-danger" role="alert">
-        @_ErrorMessage
-    </div>
-}
-<div class="form-group">
-    <label for="CountryName">Country Name:</label><br />
-    <input @bind="_CountryName" type="text" class="form-control" id="CountryName" /><br />
-</div>
-<div class="form-group">
-    <label for="CountryCode">Country Code:</label><br />
-    <input @bind="_CountryCode" type="text" class="form-control" id="CountryCode" /><br />
-</div>
-
-@if (!string.IsNullOrEmpty(_CountryName) && !string.IsNullOrEmpty(_CountryCode))
-{
-    <button class="btn btn-primary" @onclick="AddCountry">Add Country</button>
-}
+<AddCountry OnCountryAdded="AddCountryToList"></AddCountry>
+<AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
 
-<ul>
-    @foreach (var item in CountriesList)
-    {
-        <li>@item.CountryName - @item.CountryCode </li>
-    }
-</ul>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Country Code</th>
+            <th scope="col">Country Name</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in CountriesList)
+        {
+            <tr>
+                <td>@item.CountryCode</td>
+                <td>@item.CountryName</td>
+                <td><button type="button" class="btn btn-outline-danger" @onclick="async () => {await DeleteCountry(item.CountryCode); }">X</button></td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+
 
 @code {
     private List<Country> CountriesList = new List<Country>();
-    private string _CountryCode = "";
-    private string _CountryName = "";
-    private string _ErrorMessage = "";
-    private void AddCountry()
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+
+    protected override async void OnInitialized()
     {
-        Country country = new Country
-        {
-            CountryName = _CountryName,
-            CountryCode = _CountryCode
-        };
+        base.OnInitialized();
+        CountriesList = await _db.Countries.ToListAsync();
+    }
+    private async Task DeleteCountry(string cc)
+    {
         try
         {
-            _db.Countries.Add(country);
-            _db.SaveChanges();
-            CountriesList.Add(country);
+            Country country = _db.Countries.Find(cc);
+            _db.Countries.Remove(country);
+            await _db.SaveChangesAsync();
+            CountriesList.Remove(country);
+            _Message = "Deleted Successfully";
+            _AlertType = AlertType.Success;
+
         }
         catch (Exception ex)
         {
-            _ErrorMessage = ex.Message;
+            _Message = ex.Message;
+            _AlertType = AlertType.Danger;
         }
 
-
-        _CountryName = "";
-        _CountryCode = "";
     }
-
-    protected override void OnInitialized()
+    private void AddCountryToList(Country country)
     {
-        base.OnInitialized();
-        CountriesList = _db.Countries.ToList();
+        CountriesList.Add(country);
     }
-
 
 
 }

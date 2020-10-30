@@ -1,0 +1,68 @@
+﻿@using Aytam.Data 
+@inject ApplicationDbContext _db
+
+
+<h3>Add New Country</h3>
+
+@if (!string.IsNullOrEmpty(_ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_ErrorMessage
+    </div>
+}
+<div class="form-group">
+    <label for="CountryName">Country Name:</label><br />
+    <input @bind="_CountryName" @bind:event="oninput" type="text" class="form-control" id="CountryName" /><br />
+</div>
+<div class="form-group">
+    <label for="CountryCode">Country Code:</label><br />
+    <input @bind="_CountryCode" @bind:event="oninput" type="text" class="form-control" id="CountryCode" /><br />
+</div>
+
+
+<button disabled="@isEmpty" class="btn btn-primary" @onclick="AddNewCountry">Add Country</button><br />
+
+
+
+@code {
+
+    private string _CountryCode = "";
+    private string _CountryName = "";
+    private string _ErrorMessage = "";
+    [Parameter]
+    public EventCallback<Country> OnCountryAdded { get; set; }
+
+    public bool isEmpty
+    {
+        get
+        {
+            return string.IsNullOrEmpty(_CountryName) || string.IsNullOrEmpty(_CountryCode);
+        }
+    }
+
+    private async Task AddNewCountry()
+    {
+        Country country = new Country
+        {
+            CountryName = _CountryName,
+            CountryCode = _CountryCode
+        };
+        try
+        {
+            _db.Countries.Add(country);
+            await _db.SaveChangesAsync();
+            await OnCountryAdded.InvokeAsync(country);
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+        }
+
+
+        _CountryName = "";
+        _CountryCode = "";
+    }
+
+
+
+}
