@@ -146,13 +146,17 @@ namespace Aytam.Migrations
 
             modelBuilder.Entity("Aytam.Data.JobTitle", b =>
                 {
-                    b.Property<string>("Title")
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Title");
+                    b.Property<string>("Title")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
 
                     b.ToTable("JobTitles");
                 });
@@ -521,10 +525,10 @@ namespace Aytam.Migrations
                     b.Property<int>("FinancialStatus")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("JobTitleTitle")
+                    b.Property<Guid?>("JobTitleID")
                         .HasColumnType("TEXT");
 
-                    b.HasIndex("JobTitleTitle");
+                    b.HasIndex("JobTitleID");
 
                     b.ToTable("People1");
 
@@ -767,7 +771,7 @@ namespace Aytam.Migrations
                 {
                     b.HasOne("Aytam.Data.JobTitle", "JobTitle")
                         .WithMany()
-                        .HasForeignKey("JobTitleTitle");
+                        .HasForeignKey("JobTitleID");
                 });
 
             modelBuilder.Entity("Aytam.Data.Orphan", b =>

@@ -35,39 +35,37 @@
     <div class="modal-backdrop fade show"></div>
 }
 
-
-
-
 @code {
 
-    private string _JobTitle = "";
-    private string _ErrorMessage = "";
-    private string _JobDescription = "";
-    [Parameter]
-    public bool Show { get; set; }
-    [Parameter]
-    public EventCallback<JobTitle> OnJobTitleAdded { get; set; }
+            private string _JobTitle = "";
+            private string _ErrorMessage = "";
+            private string _JobDescription = "";
+            [Parameter]
+            public bool Show { get; set; }
+            [Parameter]
+            public EventCallback<JobTitle> OnJobTitleAdded { get; set; }
 
-    private async Task Close()
-    {
-        await OnJobTitleAdded.InvokeAsync(null);
-    }
+            private async Task Close()
+            {
+                await OnJobTitleAdded.InvokeAsync(null);
+            }
 
-    public bool isEmpty
-    {
-        get
-        {
-            return string.IsNullOrEmpty(_JobTitle);
-        }
-    }
+            public bool isEmpty
+            {
+                get
+                {
+                    return string.IsNullOrEmpty(_JobTitle);
+                }
+            }
 
-    private async Task AddNewJobTitle()
-    {
-        JobTitle jobTitle = new JobTitle
-        {
-            Title = _JobTitle,
+            private async Task AddNewJobTitle()
+            {
+                JobTitle jobTitle = new JobTitle
+                {
+                    ID = Guid.NewGuid(),
+                Title = _JobTitle,
             Description = _JobDescription
-        };
+                };
         try
         {
             await _db.JobTitles.AddAsync(jobTitle);
@@ -83,8 +81,4 @@
         }
 
     }
-}
-
-
-
 }
