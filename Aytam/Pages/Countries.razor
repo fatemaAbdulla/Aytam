@@ -5,10 +5,10 @@
 @inject ApplicationDbContext _db
 <h1>Countries</h1>
 
-<AddCountry Show="@_Show" OnCountryAdded="AddCountryToList">Add Country</AddCountry>
+<AddCountry Show="@_Show" OnCountryAdded="AddCountryToList"></AddCountry>
 
 
-<button type="button" class="btn btn-primary" @onclick="ShowAddCountry"></button>
+<button type="button" class="btn btn-primary" @onclick="ShowAddCountry">Add Country</button>
 
 @if (CountriesList == null)
 {

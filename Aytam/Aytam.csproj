@@ -15,5 +15,6 @@
 
   <ItemGroup>
     <Folder Include="Components\" />
+    <Folder Include="wwwroot\App_Data\" />
   </ItemGroup>
 </Project>
