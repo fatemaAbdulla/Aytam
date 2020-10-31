@@ -1,0 +1,90 @@
+﻿@using Aytam.Data
+@inject ApplicationDbContext _db
+
+
+
+@if (Show)
+{
+    <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Job Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+                    <div class="form-group">
+                        <label for="JobTitle">Job Title:</label><br />
+                        <input @bind="@_JobTitle" @bind:event="oninput" type="text" class="form-control" id="JobTitle" /><br />
+                    </div>
+                    <div class="form-group">
+                        <label for="JobDescription">Job Description:</label><br />
+                        <input @bind="@_JobDescription" @bind:event="oninput" type="text" class="form-control" id="JobDescription" /><br />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+                    <button type="button" disabled="@isEmpty" class="btn btn-primary" @onclick="AddNewJobTitle">Add Job Title</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+
+
+@code {
+
+    private string _JobTitle = "";
+    private string _ErrorMessage = "";
+    private string _JobDescription = "";
+    [Parameter]
+    public bool Show { get; set; }
+    [Parameter]
+    public EventCallback<JobTitle> OnJobTitleAdded { get; set; }
+
+    private async Task Close()
+    {
+        await OnJobTitleAdded.InvokeAsync(null);
+    }
+
+    public bool isEmpty
+    {
+        get
+        {
+            return string.IsNullOrEmpty(_JobTitle);
+        }
+    }
+
+    private async Task AddNewJobTitle()
+    {
+        JobTitle jobTitle = new JobTitle
+        {
+            Title = _JobTitle,
+            Description = _JobDescription
+        };
+        try
+        {
+            await _db.JobTitles.AddAsync(jobTitle);
+            await _db.SaveChangesAsync();
+            await OnJobTitleAdded.InvokeAsync(jobTitle);
+            _JobTitle = "";
+            _JobDescription = "";
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+        }
+
+    }
+}
+
+
+
+}

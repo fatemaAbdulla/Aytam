@@ -1,0 +1,122 @@
+﻿@page "/job-titles"
+@using Aytam.Data
+@using Aytam.Components
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+<h1>Job Titles</h1>
+
+<AddJobTitle Show="_Show" OnJobTitleAdded="AddJobTitleToList"></AddJobTitle>
+
+
+<button type="button" class="btn btn-primary" @onclick="ShowAddJobTitle">Add Job Title</button>
+
+@if (_JobTitlesList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+
+}
+else
+{
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+    
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Job Title</th>
+                <th scope="col">Job Description</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in _JobTitlesList)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteJobTitle(item.Title); }">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button> &nbsp; &nbsp;
+                        <button type="button" class="btn btn-outline-dark" @onclick="() => { EditJobTitle(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+
+    </table>
+}
+
+
+@code {
+    private List<JobTitle> _JobTitlesList;
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+    private JobTitle JobTitleToEdit = null;
+    private bool _Show = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _JobTitlesList = await _db.JobTitles.ToListAsync();
+            StateHasChanged();
+        }
+
+    }
+
+
+    private void ShowAddJobTitle()
+    {
+        _Show = true;
+    }
+
+
+    private async Task DeleteJobTitle(string jt)
+    {
+        try
+        {
+            JobTitle jobTitle = await _db.JobTitles.FindAsync(jt);
+            _db.JobTitles.Remove(jobTitle);
+            await _db.SaveChangesAsync();
+            _JobTitlesList.Remove(jobTitle);
+            _Message = "Deleted Successfully";
+            _AlertType = AlertType.Success;
+
+        }
+        catch (Exception ex)
+        {
+            _Message = ex.Message;
+            _AlertType = AlertType.Danger;
+        }
+
+    }
+    private void AddJobTitleToList(JobTitle jobTitle)
+    {
+        _Show = false;
+        if (jobTitle != null)
+        {
+            _JobTitlesList.Add(jobTitle);
+        }
+
+    }
+
+    private void EditJobTitle(JobTitle jobTitle)
+    {
+        JobTitleToEdit = jobTitle;
+    }
+
+    private void UpdateJobTitle(JobTitle newJobTitle)
+    {
+        
+
+    }
+
+}

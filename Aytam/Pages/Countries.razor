@@ -5,7 +5,7 @@
 @inject ApplicationDbContext _db
 <h1>Countries</h1>
 
-<AddCountry Show="@_Show" OnCountryAdded="AddCountryToList"></AddCountry>
+<AddCountry Show="@_Show" OnCountryAdded="AddCountryToList">Add Country</AddCountry>
 
 
 <button type="button" class="btn btn-primary" @onclick="ShowAddCountry"></button>
@@ -83,7 +83,7 @@ else
     {
         try
         {
-            Country country = _db.Countries.Find(cc);
+            Country country = await _db.Countries.FindAsync(cc);
             _db.Countries.Remove(country);
             await _db.SaveChangesAsync();
             CountriesList.Remove(country);
