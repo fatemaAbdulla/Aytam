@@ -1,26 +1,40 @@
-﻿@using Aytam.Data 
+﻿@using Aytam.Data
 @inject ApplicationDbContext _db
 
 
-<h3>Add New Country</h3>
 
-@if (!string.IsNullOrEmpty(_ErrorMessage))
+@if (Show)
 {
-    <div class="alert alert-danger" role="alert">
-        @_ErrorMessage
+    <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add New Country</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+                    <div class="form-group">
+                        <label for="CountryName">Country Name:</label><br />
+                        <input @bind="@_CountryName" @bind:event="oninput" type="text" class="form-control" id="CountryName" /><br />
+                    </div>
+                    <div class="form-group">
+                        <label for="CountryCode">Country Code:</label><br />
+                        <input @bind="@_CountryCode" @bind:event="oninput" type="text" class="form-control" id="CountryCode" /><br />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+                    <button type="button" disabled="@isEmpty" class="btn btn-primary" @onclick="AddNewCountry">Add Country</button>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="modal-backdrop fade show"></div>
 }
-<div class="form-group">
-    <label for="CountryName">Country Name:</label><br />
-    <input @bind="_CountryName" @bind:event="oninput" type="text" class="form-control" id="CountryName" /><br />
-</div>
-<div class="form-group">
-    <label for="CountryCode">Country Code:</label><br />
-    <input @bind="_CountryCode" @bind:event="oninput" type="text" class="form-control" id="CountryCode" /><br />
-</div>
 
-
-<button disabled="@isEmpty" class="btn btn-primary" @onclick="AddNewCountry">Add Country</button><br />
 
 
 
@@ -30,7 +44,14 @@
     private string _CountryName = "";
     private string _ErrorMessage = "";
     [Parameter]
+    public bool Show { get; set; }
+    [Parameter]
     public EventCallback<Country> OnCountryAdded { get; set; }
+
+    private async Task Close()
+    {
+        await OnCountryAdded.InvokeAsync(null);
+    }
 
     public bool isEmpty
     {
