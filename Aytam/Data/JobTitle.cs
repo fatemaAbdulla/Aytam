@@ -1,8 +1,13 @@
-﻿namespace Aytam.Data
+﻿using System.ComponentModel.DataAnnotations;
+
+
+namespace Aytam.Data
+
 {
     public class JobTitle
     {
-        public int ID { get; set; }
+        [Key]
         public string Title { get; set; }
+        public string Description { get; set; }
     }
 }

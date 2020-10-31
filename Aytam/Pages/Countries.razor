@@ -5,7 +5,10 @@
 @inject ApplicationDbContext _db
 <h1>Countries</h1>
 
-<AddCountry OnCountryAdded="AddCountryToList"></AddCountry>
+<AddCountry Show="@_Show" OnCountryAdded="AddCountryToList"></AddCountry>
+
+
+<button type="button" class="btn btn-primary" @onclick="ShowAddCountry"></button>
 
 @if (CountriesList == null)
 {
@@ -57,12 +60,24 @@ else
     private string _Message = "";
     private AlertType _AlertType = AlertType.Secondary;
     private Country CountryToEdit = null;
+    private bool _Show = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        CountriesList = await _db.Countries.ToListAsync();
+        if (firstRender)
+        {
+            CountriesList = await _db.Countries.ToListAsync();
+            StateHasChanged();
+        }
 
     }
+
+
+    private void ShowAddCountry()
+    {
+        _Show = true;
+    }
+
 
     private async Task DeleteCountry(string cc)
     {
@@ -85,7 +100,12 @@ else
     }
     private void AddCountryToList(Country country)
     {
-        CountriesList.Add(country);
+        _Show = false;
+        if (country != null)
+        {
+            CountriesList.Add(country);
+        }
+
     }
 
     private void EditCountry(Country country)
