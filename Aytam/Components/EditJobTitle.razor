@@ -1,0 +1,75 @@
+﻿@using Aytam.Data
+@inject ApplicationDbContext _db
+
+@if (jobTitle != null)
+{
+    <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit @jobTitle.Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <AlertMessage Message="@Message" AlertType="@AlertType"></AlertMessage>
+                    <div class="form-group">
+                        <label for="JobTitle">Job Title:</label><br />
+                        <input @bind="jobTitle.Title" @bind:event="oninput" type="text" class="form-control" id="JobTitle" /><br />
+                    </div>
+                    <div class="form-group">
+                        <label for="JobDescription">Job Description:</label><br />
+                        <input @bind="jobTitle.Description" @bind:event="oninput" type="text" class="form-control" id="JobDescription" /><br />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="Save">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+@code {
+
+    [Parameter]
+    public JobTitle jobTitle { get; set; }
+    private string Message = "";
+    private AlertType AlertType = AlertType.Secondary;
+    [Parameter]
+    public EventCallback<JobTitle> OnJobTitleUpdated { get; set; }
+    private void Close()
+
+    {
+        this.jobTitle = null;
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (jobTitle != null)
+        {
+            _db.Attach(this.jobTitle);
+        }
+        return base.OnParametersSetAsync();
+    }
+    private async Task Save()
+    {
+        try
+        {
+            await _db.SaveChangesAsync();
+            await OnJobTitleUpdated.InvokeAsync(this.jobTitle);
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            this.AlertType = AlertType.Danger;
+        }
+
+    }
+
+
+}
