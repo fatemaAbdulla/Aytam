@@ -16,29 +16,29 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <EditForm Model="@orphan" OnValidSubmit="@OnValidSubmit">
+                <EditForm Model="@Orphan" OnValidSubmit="@OnValidSubmit">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
                         <div class="form-group">
                             <label for="FirstName">First Name:</label><br />
-                            <InputText @bind-Value="@orphan.FirstName" type="text" class="form-control" id="FirstName" /><br />
+                            <InputText @bind-Value="@Orphan.FirstName" type="text" class="form-control" id="FirstName" /><br />
                         </div>
                         <div class="form-group">
                             <label for="MiddleNames">Middle Names:</label><br />
-                            <InputText @bind-Value="@orphan.MiddleNames" type="text" class="form-control" id="MiddleNames" /><br />
+                            <InputText @bind-Value="@Orphan.MiddleNames" type="text" class="form-control" id="MiddleNames" /><br />
                         </div>
                         <div class="form-group">
                             <label for="LastName">Last Name:</label><br />
-                            <InputText @bind-Value="@orphan.LastName" type="text" class="form-control" id="LastName" /><br />
+                            <InputText @bind-Value="@Orphan.LastName" type="text" class="form-control" id="LastName" /><br />
                         </div>
                         <div class="form-group">
                             <label for="CPR">CPR:</label><br />
-                            <InputText @bind-Value="@orphan.CPR" type="text" class="form-control" id="CPR" /><br />
+                            <InputText @bind-Value="@Orphan.CPR" type="text" class="form-control" id="CPR" /><br />
                         </div>
                         <div class="form-group">
                             <label for="Gender">Gender:</label><br />
-                            <InputSelect @bind-Value="@orphan.Gender">
+                            <InputSelect @bind-Value="@Orphan.Gender">
                                     <option value="0">Select</option>
                                     <option value="1">Male</option>
                                     <option value="2">Female</option>
@@ -53,7 +53,7 @@
                         <div class="form-group">
                             <label for="Notes">Notes:</label><br />
 
-                            <InputTextArea @bind-Value="@orphan.Notes" type="text" class="form-control" id="Notes" /><br />
+                            <InputTextArea @bind-Value="@Orphan.Notes" type="text" class="form-control" id="Notes" /><br />
                         </div>
 
 
@@ -79,20 +79,22 @@
 
 @code {
 
-
-    public Orphan orphan { get; set; } = new Orphan();
+    [Parameter]
+    public Orphan Orphan { get; set; }
+   
     [Parameter]
     public bool Show { get; set; }
     private string _ErrorMessage;
     public string SelectedGenderValue {
-        get { return ((int)orphan.Gender).ToString(); }
-        set { orphan.Gender = (Gender)int.Parse(value);  }
+        get { return ((int)Orphan.Gender).ToString(); }
+        set { Orphan.Gender = (Gender)int.Parse(value);  }
     }
     public DateTimeOffset? SelectedDate {
-        get { return new DateTimeOffset(orphan.DOB); }
+        get { return new DateTimeOffset(Orphan.DOB); }
         set {
-            orphan.DOB = value.GetValueOrDefault().Date;
+            Orphan.DOB = value.GetValueOrDefault().Date;
         } }
+
     private CultureInfo Culture = new CultureInfo("en-GB");
 
 
@@ -106,7 +108,7 @@
     {
         try
         {
-            await _db.Orphans.AddAsync(orphan);
+            await _db.Orphans.AddAsync(Orphan);
             await _db.SaveChangesAsync();
 
 

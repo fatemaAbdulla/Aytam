@@ -6,7 +6,7 @@
 @inject ApplicationDbContext _db
 
 
-<h1>Orphans</h1>
+<h1>Orphans new</h1>
 
 
 @if (_OrphansList == null)
@@ -21,8 +21,8 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <AddOrphan Show="_Show"></AddOrphan>
-    <button @onclick="() => { _Show = true; }">Add Orphan</button>
+    <AddOrphan Show="_Show" Orphan="OrphanToEdit"></AddOrphan>
+    <button class="btn btn-outline-dark" @onclick="() => { _Show = true; }">Add Orphan</button>
 
     <table class="table">
         <thead>
@@ -31,7 +31,7 @@ else
                 <th scope="col">CPR</th>
                 <th scope="col">Gender</th>
                 <th scope="col">Age</th>
-
+                <th></th>
             </tr>
         </thead>
 
@@ -44,10 +44,15 @@ else
                     <td>@item.Gender</td>
                     <td>@item.Age</td>
                     <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick=" () => { _Show = true; }">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button> &nbsp; &nbsp;
                         <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteOrphan(item.ID); }">
                             <span class="oi oi-trash" aria-hidden="true"></span>
                         </button> &nbsp; &nbsp;
-                        <button type="button" class="btn btn-outline-dark" @onclick="() => { EditOrphan(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-outline-dark" @onclick="() => { _Show = true; }">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                        </button>
                     </td>
 
                 </tr>
@@ -100,9 +105,10 @@ else
         }
     }
 
-    private void EditOrphan(Orphan orphan)
+    private async Task EditOrphan()
     {
-        OrphanToEdit = orphan;
+       // OrphanToEdit = orphan;
+        _Show = true;
 
     }
 
