@@ -11,14 +11,14 @@ namespace Aytam.Data
         public string LastName { get; set; }
         public string CPR { get; set; }
         public Gender Gender { get; set; }
-        public DateTime DOB { get; set; }
+        public DateTime DOB { get; set; } = DateTime.Now.AddYears(-20);
         public ContactInfo ContactInfo { get; set; }
         public MaritalStatus MaritalStatus { get; set; }
         public List<Payment> Payments { get; set; }
         public string Notes { get; set; }
         public string image { get; set; }
         public List<Document> Documents { get; set; }
-
+            
 
         public string FullName
         {

@@ -84,18 +84,18 @@ namespace Aytam.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("GuardianID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("ParentID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("TypeID")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("GuardianID");
+                    b.HasIndex("ParentID");
 
                     b.HasIndex("TypeID");
 
@@ -280,6 +280,9 @@ namespace Aytam.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("CPR")
+                        .IsUnique();
 
                     b.ToTable("People");
 
@@ -518,23 +521,6 @@ namespace Aytam.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Aytam.Data.Guardian", b =>
-                {
-                    b.HasBaseType("Aytam.Data.Person");
-
-                    b.Property<int>("FinancialStatus")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid?>("JobTitleID")
-                        .HasColumnType("TEXT");
-
-                    b.HasIndex("JobTitleID");
-
-                    b.ToTable("People1");
-
-                    b.HasDiscriminator().HasValue("Guardian");
-                });
-
             modelBuilder.Entity("Aytam.Data.Orphan", b =>
                 {
                     b.HasBaseType("Aytam.Data.Person");
@@ -562,7 +548,7 @@ namespace Aytam.Migrations
 
                     b.HasIndex("ParentID");
 
-                    b.ToTable("People2");
+                    b.ToTable("People1");
 
                     b.HasDiscriminator().HasValue("Orphan");
                 });
@@ -574,7 +560,15 @@ namespace Aytam.Migrations
                     b.Property<DateTime?>("DateOfDeath")
                         .HasColumnType("TEXT");
 
-                    b.ToTable("People3");
+                    b.Property<int?>("FinancialStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("JobTitleID")
+                        .HasColumnType("TEXT");
+
+                    b.HasIndex("JobTitleID");
+
+                    b.ToTable("People2");
 
                     b.HasDiscriminator().HasValue("Parent");
                 });
@@ -603,9 +597,9 @@ namespace Aytam.Migrations
 
             modelBuilder.Entity("Aytam.Data.Income", b =>
                 {
-                    b.HasOne("Aytam.Data.Guardian", null)
+                    b.HasOne("Aytam.Data.Parent", null)
                         .WithMany("Incomes")
-                        .HasForeignKey("GuardianID");
+                        .HasForeignKey("ParentID");
 
                     b.HasOne("Aytam.Data.IncomeType", "Type")
                         .WithMany()
@@ -767,20 +761,13 @@ namespace Aytam.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Aytam.Data.Guardian", b =>
-                {
-                    b.HasOne("Aytam.Data.JobTitle", "JobTitle")
-                        .WithMany()
-                        .HasForeignKey("JobTitleID");
-                });
-
             modelBuilder.Entity("Aytam.Data.Orphan", b =>
                 {
                     b.HasOne("Aytam.Data.Parent", "Father")
                         .WithMany()
                         .HasForeignKey("FatherID");
 
-                    b.HasOne("Aytam.Data.Guardian", "Guardian")
+                    b.HasOne("Aytam.Data.Parent", "Guardian")
                         .WithMany()
                         .HasForeignKey("GuardianID");
 
@@ -791,6 +778,13 @@ namespace Aytam.Migrations
                     b.HasOne("Aytam.Data.Parent", null)
                         .WithMany("Children")
                         .HasForeignKey("ParentID");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Parent", b =>
+                {
+                    b.HasOne("Aytam.Data.JobTitle", "JobTitle")
+                        .WithMany()
+                        .HasForeignKey("JobTitleID");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,133 @@
+﻿@using Aytam.Data
+@using BlazorDateRangePicker
+@using System.Globalization
+@inject ApplicationDbContext _db
+
+
+
+@if (Show)
+{
+    <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content" style="overflow-y:auto">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Parent</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <EditForm Model="@parent" OnValidSubmit="@OnValidSubmit">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label for="FirstName">First Name:</label><br />
+                            <InputText @bind-Value="@parent.FirstName" type="text" class="form-control" id="FirstName" /><br />
+                        </div>
+                        <div class="form-group">
+                            <label for="MiddleNames">Middle Names:</label><br />
+                            <InputText @bind-Value="@parent.MiddleNames" type="text" class="form-control" id="MiddleNames" /><br />
+                        </div>
+                        <div class="form-group">
+                            <label for="LastName">Last Name:</label><br />
+                            <InputText @bind-Value="@parent.LastName" type="text" class="form-control" id="LastName" /><br />
+                        </div>
+                        <div class="form-group">
+                            <label for="CPR">CPR:</label><br />
+                            <InputText @bind-Value="@parent.CPR" type="text" class="form-control" id="CPR" /><br />
+                        </div>
+                        <div class="form-group">
+                            <label for="Gender">Gender:</label><br />
+                            <InputSelect @bind-Value="@parent.Gender">
+                                <option value="0">Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+                            </InputSelect>
+                        </div>
+                        <div class="form-group">
+                            <label for="MaritalStatus">Marital Status:</label><br />
+                            <InputSelect @bind-Value="@parent.MaritalStatus">
+                                @foreach (MaritalStatus status in Enum.GetValues(typeof(MaritalStatus)))
+                                {
+                                    <option value="@((int)status)">@status.ToString()</option>
+                                    }
+                            </InputSelect>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="DOB">Date Of Birth:</label><br />
+                            <DateRangePicker SingleDatePicker="true" @bind-StartDate="SelectedDate" Culture="Culture" />
+
+                        </div>
+                        <div class="form-group">
+                            <label for="Notes">Notes:</label><br />
+
+                            <InputTextArea @bind-Value="@parent.Notes" type="text" class="form-control" id="Notes" /><br />
+                        </div>
+
+
+
+
+
+                        <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+                        <button type="submit" class="btn btn-success">Add Parent</button>
+
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+
+}
+
+@code {
+
+
+    public Parent parent { get; set; } = new Parent();
+    [Parameter]
+    public bool Show { get; set; }
+    private string _ErrorMessage;
+    public string SelectedGenderValue
+    {
+        get { return ((int)parent.Gender).ToString(); }
+        set { parent.Gender = (Gender)int.Parse(value); }
+    }
+    public DateTimeOffset? SelectedDate
+    {
+        get { return new DateTimeOffset(parent.DOB); }
+        set
+        {
+            parent.DOB = value.GetValueOrDefault().Date;
+        }
+    }
+    private CultureInfo Culture = new CultureInfo("en-GB");
+
+
+    private async Task Close()
+    {
+
+
+    }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            await _db.Parents.AddAsync(parent);
+            await _db.SaveChangesAsync();
+
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+        }
+    }
+
+}
