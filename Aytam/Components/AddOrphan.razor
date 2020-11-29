@@ -66,7 +66,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
-                        <button type="submit" class="btn btn-success">Add Orphan</button>
+                        <button type="submit" class="btn btn-success">@ButtonText</button>
 
                     </div>
                 </EditForm>
@@ -80,10 +80,33 @@
 @code {
 
     [Parameter]
-    public Orphan Orphan { get; set; }
-   
+    public Orphan Orphan { get; set; } = new Orphan();
+
     [Parameter]
     public bool Show { get; set; }
+
+    private string ButtonText = "Add Orphan";
+
+    private bool EditMode = false;
+
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Orphan != null)
+        {
+            EditMode = true;
+            ButtonText = "Save Changes";
+            _db.Attach(Orphan);
+        }
+        else
+        {
+            Orphan = new Orphan();
+        }
+
+    }
+
+
     private string _ErrorMessage;
     public string SelectedGenderValue {
         get { return ((int)Orphan.Gender).ToString(); }
@@ -108,7 +131,13 @@
     {
         try
         {
-            await _db.Orphans.AddAsync(Orphan);
+
+            if (!EditMode)
+            {
+                await _db.Orphans.AddAsync(Orphan);
+            }
+
+
             await _db.SaveChangesAsync();
 
 

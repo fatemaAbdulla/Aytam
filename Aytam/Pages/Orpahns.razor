@@ -6,7 +6,7 @@
 @inject ApplicationDbContext _db
 
 
-<h1>Orphans new</h1>
+<h1>Orphans</h1>
 
 
 
@@ -46,13 +46,11 @@ else
                     <td>@item.Gender</td>
                     <td>@item.Age</td>
                     <td>
-                        <button type="button" class="btn btn-outline-danger" @onclick=" () => { _Show = true; }">
-                            <span class="oi oi-trash" aria-hidden="true"></span>
-                        </button> &nbsp; &nbsp;
+                        
                         <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteOrphan(item.ID); }">
                             <span class="oi oi-trash" aria-hidden="true"></span>
                         </button> &nbsp; &nbsp;
-                        <button type="button" class="btn btn-outline-dark" @onclick="() => { _Show = true; }">
+                        <button type="button" class="btn btn-outline-dark" @onclick="async () => { await EditOrphan(item); }">
                             <span class="oi oi-pencil" aria-hidden="true"></span>
                         </button>
                     </td>
@@ -107,9 +105,10 @@ else
         }
     }
 
-    private async Task EditOrphan()
+    private async Task EditOrphan(Orphan orphan)
     {
-       // OrphanToEdit = orphan;
+        
+        OrphanToEdit = orphan;
         _Show = true;
 
     }
