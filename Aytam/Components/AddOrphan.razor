@@ -85,6 +85,11 @@
     [Parameter]
     public bool Show { get; set; }
 
+    [Parameter]
+    public EventCallback<Orphan> OnOrphanAdded { get; set; }
+
+
+
     private string ButtonText = "Add Orphan";
 
     private bool EditMode = false;
@@ -123,7 +128,7 @@
 
     private async Task Close()
     {
-
+        await OnOrphanAdded.InvokeAsync(null);
 
     }
 
@@ -139,6 +144,7 @@
 
 
             await _db.SaveChangesAsync();
+            await OnOrphanAdded.InvokeAsync(Orphan);
 
 
         }

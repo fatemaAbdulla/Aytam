@@ -21,7 +21,7 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <AddParent Show="_Show"></AddParent>
+    <AddParent Show="_Show" OnParentAdded="AddParentToList" OnParentUpdated="UpdateParentInList" parent="ParentToEdit"></AddParent>
     <button @onclick="() => { _Show = true; }">Add Parent</button>
 
     <table class="table">
@@ -71,6 +71,7 @@ else
     private Parent ParentToEdit = null;
     private bool _Show = false;
 
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -103,6 +104,29 @@ else
     private void EditParent(Parent parent)
     {
         ParentToEdit = parent;
+        _Show = true;
+    }
+
+    private void AddParentToList(Parent parent)
+    {
+        _Show = false;
+        if (parent != null)
+        {
+            _ParentsList.Add(parent);
+        }
+
+    }
+
+    private void UpdateParentInList(Parent parent)
+    {
+        _Show = false;
+        if (parent != null)
+        {
+            int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
+            _ParentsList.RemoveAt(ParentToRemove);
+            _ParentsList.Insert(ParentToRemove, parent);
+
+        }
 
     }
 

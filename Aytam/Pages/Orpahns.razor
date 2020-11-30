@@ -23,7 +23,7 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <AddOrphan Show="_Show" Orphan="OrphanToEdit"></AddOrphan>
+    <AddOrphan Show="_Show" Orphan="OrphanToEdit" OnOrphanAdded="AddOrphanToList"></AddOrphan>
     <button class="btn btn-outline-dark" @onclick="() => { _Show = true; }">Add Orphan</button>
 
     <table class="table">
@@ -107,9 +107,19 @@ else
 
     private async Task EditOrphan(Orphan orphan)
     {
-        
+
         OrphanToEdit = orphan;
         _Show = true;
+
+    }
+
+    private void AddOrphanToList(Orphan orphan)
+    {
+        _Show = false;
+        if (orphan != null)
+        {
+            _OrphansList.Add(orphan);
+        }
 
     }
 

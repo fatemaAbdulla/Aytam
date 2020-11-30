@@ -75,7 +75,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
-                        <button type="submit" class="btn btn-success">Add Parent</button>
+                        <button type="submit" class="btn btn-success">@ButtonText</button>
 
                     </div>
                 </EditForm>
@@ -89,9 +89,16 @@
 @code {
 
 
-    public Parent parent { get; set; } = new Parent();
+    [Parameter]
+    public Parent parent { get; set; }
     [Parameter]
     public bool Show { get; set; }
+    [Parameter]
+    public EventCallback<Parent> OnParentAdded { get; set; }
+    [Parameter]
+    public EventCallback<Parent> OnParentUpdated { get; set; }
+    private string ButtonText = "Add Parent";
+    private bool EditMode = false;
     private string _ErrorMessage;
     public string SelectedGenderValue
     {
@@ -111,7 +118,7 @@
 
     private async Task Close()
     {
-
+        await OnParentAdded.InvokeAsync(null);
 
     }
 
@@ -119,8 +126,20 @@
     {
         try
         {
-            await _db.Parents.AddAsync(parent);
+            if (EditMode)
+            {
+                await OnParentUpdated.InvokeAsync(parent);
+            }
+            else
+            {
+                await _db.Parents.AddAsync(parent);
+                await OnParentAdded.InvokeAsync(parent);
+
+            }
+
+
             await _db.SaveChangesAsync();
+
 
 
         }
@@ -129,5 +148,22 @@
             _ErrorMessage = ex.Message;
         }
     }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (parent != null)
+        {
+            EditMode = true;
+            ButtonText = "Save Changes";
+            _db.Attach(parent);
+        }
+        else
+        {
+            parent = new Parent();
+        }
+
+    }
+
+
 
 }
