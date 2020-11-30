@@ -1,12 +1,16 @@
 ﻿@using Aytam.Data
 @using BlazorDateRangePicker
 @using System.Globalization
+@using Blazored.Typeahead
+@using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext _db
 
 
 
 @if (Show)
 {
+    <AddParent Show="_Show" OnParentAdded="AddParentToList" parent="null"></AddParent>
+
     <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:block">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content" style="overflow-y:auto">
@@ -39,16 +43,16 @@
                         <div class="form-group">
                             <label for="Gender">Gender:</label><br />
                             <InputSelect @bind-Value="@Orphan.Gender">
-                                    <option value="0">Select</option>
-                                    <option value="1">Male</option>
-                                    <option value="2">Female</option>
-                                </InputSelect>
+                                <option value="0">Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+                            </InputSelect>
                         </div>
 
                         <div class="form-group">
                             <label for="DOB">Date Of Birth:</label><br />
-                            <DateRangePicker SingleDatePicker="true" @bind-StartDate="SelectedDate" Culture="Culture"/>
-                            
+                            <DateRangePicker SingleDatePicker="true" @bind-StartDate="SelectedDate" Culture="Culture" />
+
                         </div>
                         <div class="form-group">
                             <label for="Notes">Notes:</label><br />
@@ -56,8 +60,24 @@
                             <InputTextArea @bind-Value="@Orphan.Notes" type="text" class="form-control" id="Notes" /><br />
                         </div>
 
+                        <div class="form-group">
+                            <label>Father:</label><br />
+                            <BlazoredTypeahead SearchMethod="SearchFather"
+                                               @bind-Value="@Orphan.Father">
+                                <SelectedTemplate Context="Parent">
+                                    @Parent.FullName
+                                </SelectedTemplate>
+                                <ResultTemplate Context="Parent">
+                                    @Parent.FullName
+                                </ResultTemplate>
+                                <FooterTemplate>
+                                    <button class="btn btn-secondary" @onclick="() => { _Show = true; }">Add New Parent</button>
+                                </FooterTemplate>
+                            </BlazoredTypeahead>
 
+                        </div>
 
+                       
 
 
                         <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
@@ -91,13 +111,31 @@
     [Parameter]
     public EventCallback<Orphan> OnOrphanUpdated { get; set; }
 
-
+    private bool _Show = false;
 
     private string ButtonText = "Add Orphan";
 
     private bool EditMode = false;
 
+    private void AddParentToList(Parent parent)
+    {
+        _Show = false;
+        if (parent != null)
+        {
+            
+        }
 
+    }
+
+    private async Task<IEnumerable<Parent>> SearchFather(string searchText)
+    {
+       var results = await _db.Parents
+            .Where(p => p.Gender == Gender.Male || p.Gender == Gender.NotSpecified)
+            .ToListAsync();
+
+        return results
+            .Where(p => p.FullName.Contains(searchText));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -116,15 +154,19 @@
 
 
     private string _ErrorMessage;
-    public string SelectedGenderValue {
+    public string SelectedGenderValue
+    {
         get { return ((int)Orphan.Gender).ToString(); }
-        set { Orphan.Gender = (Gender)int.Parse(value);  }
+        set { Orphan.Gender = (Gender)int.Parse(value); }
     }
-    public DateTimeOffset? SelectedDate {
+    public DateTimeOffset? SelectedDate
+    {
         get { return new DateTimeOffset(Orphan.DOB); }
-        set {
+        set
+        {
             Orphan.DOB = value.GetValueOrDefault().Date;
-        } }
+        }
+    }
 
     private CultureInfo Culture = new CultureInfo("en-GB");
 
