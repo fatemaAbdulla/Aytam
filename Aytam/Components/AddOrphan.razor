@@ -88,6 +88,9 @@
     [Parameter]
     public EventCallback<Orphan> OnOrphanAdded { get; set; }
 
+    [Parameter]
+    public EventCallback<Orphan> OnOrphanUpdated { get; set; }
+
 
 
     private string ButtonText = "Add Orphan";
@@ -137,14 +140,19 @@
         try
         {
 
-            if (!EditMode)
+            if (EditMode)
+            {
+                await OnOrphanUpdated.InvokeAsync(Orphan);
+            }
+            else
             {
                 await _db.Orphans.AddAsync(Orphan);
+                await OnOrphanAdded.InvokeAsync(Orphan);
             }
 
 
             await _db.SaveChangesAsync();
-            await OnOrphanAdded.InvokeAsync(Orphan);
+
 
 
         }

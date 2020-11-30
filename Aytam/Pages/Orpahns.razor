@@ -23,7 +23,7 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <AddOrphan Show="_Show" Orphan="OrphanToEdit" OnOrphanAdded="AddOrphanToList"></AddOrphan>
+    <AddOrphan Show="_Show" Orphan="OrphanToEdit" OnOrphanUpdated="UpdateOrphanInList" OnOrphanAdded="AddOrphanToList"></AddOrphan>
     <button class="btn btn-outline-dark" @onclick="() => { _Show = true; }">Add Orphan</button>
 
     <table class="table">
@@ -119,6 +119,19 @@ else
         if (orphan != null)
         {
             _OrphansList.Add(orphan);
+        }
+
+    }
+
+    private void UpdateOrphanInList(Orphan orphan)
+    {
+        _Show = false;
+        if (orphan != null)
+        {
+            int OrphanToRemove = _OrphansList.FindIndex(x => x.ID == orphan.ID);
+            _OrphansList.RemoveAt(OrphanToRemove);
+            _OrphansList.Insert(OrphanToRemove, orphan);
+
         }
 
     }
