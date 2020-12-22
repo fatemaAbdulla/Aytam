@@ -4,7 +4,7 @@
 @using Aytam.Components
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext _db
-
+@inject IModalService Modal
 
 <h1>Parents</h1>
 
@@ -21,8 +21,9 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <AddParent Show="_Show" OnParentAdded="AddParentToList" OnParentUpdated="UpdateParentInList" parent="ParentToEdit"></AddParent>
-    <button @onclick="() => { _Show = true; }">Add Parent</button>
+    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-primary">Add</button>
+    @*<AddParent Show="_Show" OnParentAdded="AddParentToList" OnParentUpdated="UpdateParentInList" parent="ParentToEdit"></AddParent>*@
+    @*<button @onclick="() => { _Show = true; }">Add Parent</button>*@
 
     <table class="table">
         <thead>
@@ -47,7 +48,7 @@ else
                         <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteParent(item.ID); }">
                             <span class="oi oi-trash" aria-hidden="true"></span>
                         </button> &nbsp; &nbsp;
-                        <button type="button" class="btn btn-outline-dark" @onclick="() => { EditParent(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowParentDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
                     </td>
 
                 </tr>
@@ -68,8 +69,7 @@ else
     private List<Parent> _ParentsList;
     private string _Message = "";
     private AlertType _AlertType = AlertType.Secondary;
-    private Parent ParentToEdit = null;
-    private bool _Show = false;
+
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -101,31 +101,49 @@ else
         }
     }
 
-    private void EditParent(Parent parent)
-    {
-        ParentToEdit = parent;
-        _Show = true;
-    }
 
     private void AddParentToList(Parent parent)
     {
-        _Show = false;
         if (parent != null)
         {
             _ParentsList.Add(parent);
         }
 
+
     }
 
     private void UpdateParentInList(Parent parent)
     {
-        _Show = false;
-        if (parent != null)
-        {
-            int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
-            _ParentsList.RemoveAt(ParentToRemove);
-            _ParentsList.Insert(ParentToRemove, parent);
 
+        int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
+        _ParentsList.RemoveAt(ParentToRemove);
+        _ParentsList.Insert(ParentToRemove, parent);
+
+
+
+
+    }
+
+    private async void ShowParentDetails(Parent parent)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(Parent), parent);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal= Modal.Show<ParentDetails>("Add Parent", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (parent == null)
+            {
+                AddParentToList((Parent)result.Data);
+            }
+            else
+            {
+                UpdateParentInList((Parent)result.Data);
+            }
+            StateHasChanged();
         }
 
     }

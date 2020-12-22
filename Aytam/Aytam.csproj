@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.7" />
     <PackageReference Include="BlazorDateRangePicker" Version="3.2.0" />
     <PackageReference Include="Blazored.Typeahead" Version="4.4.1" />
+    <PackageReference Include="Blazored.Modal" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
