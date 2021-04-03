@@ -21,9 +21,8 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-primary">Add</button>
-    @*<AddParent Show="_Show" OnParentAdded="AddParentToList" OnParentUpdated="UpdateParentInList" parent="ParentToEdit"></AddParent>*@
-    @*<button @onclick="() => { _Show = true; }">Add Parent</button>*@
+    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-outline-dark">Add Parent</button>
+
 
     <table class="table">
         <thead>

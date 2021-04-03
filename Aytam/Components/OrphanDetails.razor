@@ -1,0 +1,215 @@
+﻿@using Aytam.Data
+@using BlazorDateRangePicker
+@using System.Globalization
+@using Blazored.Typeahead
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+@inject IModalService Modal
+
+<EditForm Model="@Orphan" OnValidSubmit="@OnValidSubmit">
+    <div class="modal-body">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label for="FirstName">First Name:</label><br />
+            <InputText @bind-Value="@Orphan.FirstName" type="text" class="form-control" id="FirstName" /><br />
+        </div>
+        <div class="form-group">
+            <label for="MiddleNames">Middle Names:</label><br />
+            <InputText @bind-Value="@Orphan.MiddleNames" type="text" class="form-control" id="MiddleNames" /><br />
+        </div>
+        <div class="form-group">
+            <label for="LastName">Last Name:</label><br />
+            <InputText @bind-Value="@Orphan.LastName" type="text" class="form-control" id="LastName" /><br />
+        </div>
+        <div class="form-group">
+            <label for="CPR">CPR:</label><br />
+            <InputText @bind-Value="@Orphan.CPR" type="text" class="form-control" id="CPR" /><br />
+        </div>
+        <div class="form-group">
+            <label for="Gender">Gender:</label><br />
+            <InputSelect @bind-Value="@Orphan.Gender" class="form-control">
+                @foreach (var gender in Enum.GetValues(typeof(Gender)))
+                {
+                    <option value="@gender">@gender.ToString()</option>
+                }
+            </InputSelect>
+        </div>
+
+
+        <div class="form-group">
+            <label for="DOB">Date Of Birth:</label><br />
+            <DateRangePicker SingleDatePicker="true" @bind-StartDate="SelectedDate" Culture="Culture" />
+
+        </div>
+        <div class="form-group">
+            <label for="Notes">Notes:</label><br />
+
+            <InputTextArea @bind-Value="@Orphan.Notes" type="text" class="form-control" id="Notes" /><br />
+        </div>
+
+        <div class="form-group">
+            <label>Father:</label><br />
+            <BlazoredTypeahead SearchMethod="SearchFather"
+                               @bind-Value="@Orphan.Father">
+                <SelectedTemplate Context="Parent">
+                    @Parent.FullName
+                </SelectedTemplate>
+                <ResultTemplate Context="Parent">
+                    @Parent.FullName
+                </ResultTemplate>
+                <FooterTemplate>
+                    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-outline-dark">Add New Parent</button>
+                    @*<button class="btn btn-secondary" @onclick="() => {  }">Add New Parent</button>*@
+                </FooterTemplate>
+            </BlazoredTypeahead>
+
+        </div>
+
+
+
+
+        <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+        <button type="submit" class="btn btn-success">@ButtonText</button>
+
+    </div>
+</EditForm>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+
+    [Parameter]
+    public Orphan Orphan { get; set; } = new Orphan();
+
+    private string ButtonText = "Add Orphan";
+
+    private bool EditMode = false;
+
+    private Orphan _tempOrphan;
+
+    private async Task<IEnumerable<Parent>> SearchFather(string searchText)
+    {
+        var results = await _db.Parents
+             .Where(p => p.Gender == Gender.Male || p.Gender == Gender.NotSpecified)
+             .ToListAsync();
+
+        return results
+            .Where(p => p.FullName.Contains(searchText));
+    }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Orphan != null)
+        {
+
+            EditMode = true;
+            ButtonText = "Save Changes";
+            _db.Attach(Orphan);
+        }
+        else
+        {
+            Orphan = new Orphan();
+        }
+
+    }
+
+
+    private string _ErrorMessage;
+    public string SelectedGenderValue
+    {
+        get { return ((int)Orphan.Gender).ToString(); }
+        set { Orphan.Gender = (Gender)int.Parse(value); }
+    }
+    public DateTimeOffset? SelectedDate
+    {
+        get { return new DateTimeOffset(Orphan.DOB); }
+        set
+        {
+            Orphan.DOB = value.GetValueOrDefault().Date;
+        }
+    }
+
+    private CultureInfo Culture = new CultureInfo("en-GB");
+
+
+    private async Task Close()
+    {
+
+        await BlazoredModal.Cancel();
+
+    }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+
+            if (!EditMode)
+            {
+                await _db.Orphans.AddAsync(Orphan);
+            }
+
+
+            await _db.SaveChangesAsync();
+            await BlazoredModal.Close(ModalResult.Ok<Orphan>(Orphan));
+
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+        }
+    }
+
+    private async void ShowParentDetails(Parent parent)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(Parent), parent);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<ParentDetails>("Add Parent", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (parent == null)
+            {
+                AddParentToList((Parent)result.Data);
+            }
+            else
+            {
+                UpdateParentInList((Parent)result.Data);
+            }
+            StateHasChanged();
+        }
+
+    }
+
+    private void AddParentToList(Parent parent)
+    {
+        if (parent != null)
+        {
+            _ParentsList.Add(parent);
+        }
+
+
+    }
+
+    private void UpdateParentInList(Parent parent)
+    {
+
+        int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
+        _ParentsList.RemoveAt(ParentToRemove);
+        _ParentsList.Insert(ParentToRemove, parent);
+
+    }
+
+    private List<Parent> _ParentsList;
+}

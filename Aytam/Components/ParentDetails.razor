@@ -109,16 +109,9 @@
     {
         try
         {
-            if (EditMode)
-            {
-                await OnParentUpdated.InvokeAsync(parent);
-
-            }
-            else
+            if (!EditMode)
             {
                 await _db.Parents.AddAsync(parent);
-                await OnParentAdded.InvokeAsync(parent);
-
             }
 
 
@@ -126,7 +119,7 @@
             await BlazoredModal.Close(ModalResult.Ok<Parent>(parent));
 
 
-                
+
         }
         catch (Exception ex)
         {

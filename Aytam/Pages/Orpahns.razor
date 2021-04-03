@@ -4,6 +4,7 @@
 @using Aytam.Components
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext _db
+@inject IModalService Modal
 
 
 <h1>Orphans</h1>
@@ -23,8 +24,7 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <AddOrphan Show="_Show" Orphan="OrphanToEdit" OnOrphanUpdated="UpdateOrphanInList" OnOrphanAdded="AddOrphanToList"></AddOrphan>
-    <button class="btn btn-outline-dark" @onclick="() => { _Show = true; }">Add Orphan</button>
+    <button class="btn btn-outline-dark" @onclick="async() => { await ShowOrphanDetails(null); }">Add Orphan</button>
 
     <table class="table">
         <thead>
@@ -50,7 +50,7 @@ else
                         <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteOrphan(item.ID); }">
                             <span class="oi oi-trash" aria-hidden="true"></span>
                         </button> &nbsp; &nbsp;
-                        <button type="button" class="btn btn-outline-dark" @onclick="async () => { await EditOrphan(item); }">
+                        <button type="button" class="btn btn-outline-dark" @onclick="async () => { await ShowOrphanDetails(item); }">
                             <span class="oi oi-pencil" aria-hidden="true"></span>
                         </button>
                     </td>
@@ -73,8 +73,7 @@ else
     private List<Orphan> _OrphansList;
     private string _Message = "";
     private AlertType _AlertType = AlertType.Secondary;
-    private Orphan OrphanToEdit = null;
-    private bool _Show = false;
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -105,35 +104,46 @@ else
         }
     }
 
-    private async Task EditOrphan(Orphan orphan)
-    {
-
-        OrphanToEdit = orphan;
-        _Show = true;
-
-    }
-
     private void AddOrphanToList(Orphan orphan)
     {
-        _Show = false;
-        if (orphan != null)
-        {
+
             _OrphansList.Add(orphan);
-        }
-        OrphanToEdit = null;
+
     }
 
     private void UpdateOrphanInList(Orphan orphan)
     {
-        _Show = false;
-        if (orphan != null)
-        {
+
             int OrphanToRemove = _OrphansList.FindIndex(x => x.ID == orphan.ID);
             _OrphansList.RemoveAt(OrphanToRemove);
             _OrphansList.Insert(OrphanToRemove, orphan);
 
+
+    }
+
+    private async Task ShowOrphanDetails(Orphan orphan)
+    {
+        bool IsEditMode = orphan != null;
+        var Params = new ModalParameters();
+        Params.Add(nameof(Orphan), orphan);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<OrphanDetails>(IsEditMode ? "Edit Orphan" : "Add Orphan", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (IsEditMode)
+            {
+                //UpdateOrphanInList((Orphan)result.Data);
+
+            }
+            else
+            {
+                AddOrphanToList((Orphan)result.Data);
+            }
+            StateHasChanged();
         }
-        OrphanToEdit = null;
+
     }
 
 
