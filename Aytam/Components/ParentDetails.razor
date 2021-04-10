@@ -102,7 +102,7 @@
     private async Task Close()
     {
         //await OnParentAdded.InvokeAsync(null);
-        await BlazoredModal.Cancel();
+        await BlazoredModal.CancelAsync();
     }
 
     private async Task OnValidSubmit(EditContext editContext)
@@ -116,7 +116,7 @@
 
 
             await _db.SaveChangesAsync();
-            await BlazoredModal.Close(ModalResult.Ok<Parent>(parent));
+            await BlazoredModal.CloseAsync(ModalResult.Ok<Parent>(parent));
 
 
 

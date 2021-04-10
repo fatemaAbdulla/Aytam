@@ -14,7 +14,7 @@ namespace Aytam.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.7");
+                .HasAnnotation("ProductVersion", "5.0.5");
 
             modelBuilder.Entity("Aytam.Data.Country", b =>
                 {
@@ -131,7 +131,7 @@ namespace Aytam.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("SponsershipID")
+                    b.Property<int?>("SponsorshipID")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("TotalAmount")
@@ -139,7 +139,7 @@ namespace Aytam.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("SponsershipID");
+                    b.HasIndex("SponsorshipID");
 
                     b.ToTable("Invoices");
                 });
@@ -249,6 +249,7 @@ namespace Aytam.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("CPR")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DOB")
@@ -259,12 +260,14 @@ namespace Aytam.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Gender")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("MaritalStatus")
@@ -289,7 +292,7 @@ namespace Aytam.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Person");
                 });
 
-            modelBuilder.Entity("Aytam.Data.Sponsership", b =>
+            modelBuilder.Entity("Aytam.Data.Sponsorship", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -310,7 +313,7 @@ namespace Aytam.Migrations
                     b.Property<int>("PaymentFrequency")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("SponserID")
+                    b.Property<int?>("SponsorID")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("StartDate")
@@ -320,9 +323,9 @@ namespace Aytam.Migrations
 
                     b.HasIndex("OrphanID");
 
-                    b.HasIndex("SponserID");
+                    b.HasIndex("SponsorID");
 
-                    b.ToTable("Sponserships");
+                    b.ToTable("Sponsorships");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -335,18 +338,18 @@ namespace Aytam.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
                 });
@@ -387,8 +390,8 @@ namespace Aytam.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
@@ -400,12 +403,12 @@ namespace Aytam.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
@@ -423,17 +426,17 @@ namespace Aytam.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                        .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -464,12 +467,12 @@ namespace Aytam.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("TEXT");
@@ -506,12 +509,12 @@ namespace Aytam.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
                         .HasColumnType("TEXT");
@@ -548,8 +551,6 @@ namespace Aytam.Migrations
 
                     b.HasIndex("ParentID");
 
-                    b.ToTable("People1");
-
                     b.HasDiscriminator().HasValue("Orphan");
                 });
 
@@ -568,16 +569,14 @@ namespace Aytam.Migrations
 
                     b.HasIndex("JobTitleID");
 
-                    b.ToTable("People2");
-
                     b.HasDiscriminator().HasValue("Parent");
                 });
 
-            modelBuilder.Entity("Aytam.Data.Sponser", b =>
+            modelBuilder.Entity("Aytam.Data.Sponsor", b =>
                 {
                     b.HasBaseType("Aytam.Data.Person");
 
-                    b.HasDiscriminator().HasValue("Sponser");
+                    b.HasDiscriminator().HasValue("Sponsor");
                 });
 
             modelBuilder.Entity("Aytam.Data.Document", b =>
@@ -593,6 +592,8 @@ namespace Aytam.Migrations
                     b.HasOne("Aytam.Data.DocumentType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeID");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Aytam.Data.Income", b =>
@@ -604,13 +605,15 @@ namespace Aytam.Migrations
                     b.HasOne("Aytam.Data.IncomeType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeID");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Aytam.Data.Invoice", b =>
                 {
-                    b.HasOne("Aytam.Data.Sponsership", null)
+                    b.HasOne("Aytam.Data.Sponsorship", null)
                         .WithMany("Invoices")
-                        .HasForeignKey("SponsershipID");
+                        .HasForeignKey("SponsorshipID");
                 });
 
             modelBuilder.Entity("Aytam.Data.Payment", b =>
@@ -638,6 +641,14 @@ namespace Aytam.Migrations
                     b.HasOne("Aytam.Data.Person", "RecievedOnBehalfOf")
                         .WithMany()
                         .HasForeignKey("RecievedOnBehalfOfID");
+
+                    b.Navigation("PaidBy");
+
+                    b.Navigation("PaymentType");
+
+                    b.Navigation("RecievedBy");
+
+                    b.Navigation("RecievedOnBehalfOf");
                 });
 
             modelBuilder.Entity("Aytam.Data.Person", b =>
@@ -695,19 +706,29 @@ namespace Aytam.Migrations
                                     b2.HasOne("Aytam.Data.Country", "Country")
                                         .WithMany()
                                         .HasForeignKey("CountryCode");
+
+                                    b2.Navigation("Country");
                                 });
+
+                            b1.Navigation("Address");
                         });
+
+                    b.Navigation("ContactInfo");
                 });
 
-            modelBuilder.Entity("Aytam.Data.Sponsership", b =>
+            modelBuilder.Entity("Aytam.Data.Sponsorship", b =>
                 {
                     b.HasOne("Aytam.Data.Orphan", "Orphan")
-                        .WithMany("Sponserships")
+                        .WithMany("Sponsorships")
                         .HasForeignKey("OrphanID");
 
-                    b.HasOne("Aytam.Data.Sponser", "Sponser")
-                        .WithMany("Sponserships")
-                        .HasForeignKey("SponserID");
+                    b.HasOne("Aytam.Data.Sponsor", "Sponsor")
+                        .WithMany("Sponsorships")
+                        .HasForeignKey("SponsorID");
+
+                    b.Navigation("Orphan");
+
+                    b.Navigation("Sponsor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -778,6 +799,12 @@ namespace Aytam.Migrations
                     b.HasOne("Aytam.Data.Parent", null)
                         .WithMany("Children")
                         .HasForeignKey("ParentID");
+
+                    b.Navigation("Father");
+
+                    b.Navigation("Guardian");
+
+                    b.Navigation("Mother");
                 });
 
             modelBuilder.Entity("Aytam.Data.Parent", b =>
@@ -785,6 +812,47 @@ namespace Aytam.Migrations
                     b.HasOne("Aytam.Data.JobTitle", "JobTitle")
                         .WithMany()
                         .HasForeignKey("JobTitleID");
+
+                    b.Navigation("JobTitle");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Invoice", b =>
+                {
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Payment", b =>
+                {
+                    b.Navigation("Documents");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Person", b =>
+                {
+                    b.Navigation("Documents");
+
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Sponsorship", b =>
+                {
+                    b.Navigation("Invoices");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Orphan", b =>
+                {
+                    b.Navigation("Sponsorships");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Parent", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Incomes");
+                });
+
+            modelBuilder.Entity("Aytam.Data.Sponsor", b =>
+                {
+                    b.Navigation("Sponsorships");
                 });
 #pragma warning restore 612, 618
         }

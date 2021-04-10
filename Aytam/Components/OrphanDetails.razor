@@ -51,6 +51,7 @@
         <div class="form-group">
             <label>Father:</label><br />
             <BlazoredTypeahead SearchMethod="SearchFather"
+                               AddItemOnEmptyResultMethod="AddNewParent"
                                @bind-Value="@Orphan.Father">
                 <SelectedTemplate Context="Parent">
                     @Parent.FullName
@@ -58,10 +59,28 @@
                 <ResultTemplate Context="Parent">
                     @Parent.FullName
                 </ResultTemplate>
-                <FooterTemplate>
-                    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-outline-dark">Add New Parent</button>
-                    @*<button class="btn btn-secondary" @onclick="() => {  }">Add New Parent</button>*@
-                </FooterTemplate>
+             
+                <NotFoundTemplate Context="Parent">
+                    Add New Father
+                </NotFoundTemplate>
+            </BlazoredTypeahead>
+
+        </div>
+        <div class="form-group">
+            <label>Mother:</label><br />
+            <BlazoredTypeahead SearchMethod="SearchMother"
+                               AddItemOnEmptyResultMethod="AddNewParent"
+                               @bind-Value="@Orphan.Mother">
+                <SelectedTemplate Context="Parent">
+                    @Parent.FullName
+                </SelectedTemplate>
+                <ResultTemplate Context="Parent">
+                    @Parent.FullName
+                </ResultTemplate>
+
+                <NotFoundTemplate Context="Parent">
+                    Add New Mother
+                </NotFoundTemplate>
             </BlazoredTypeahead>
 
         </div>
@@ -103,6 +122,15 @@
             .Where(p => p.FullName.Contains(searchText));
     }
 
+    private async Task<IEnumerable<Parent>> SearchMother(string searchText)
+    {
+        var results = await _db.Parents
+             .Where(p => p.Gender == Gender.Female || p.Gender == Gender.NotSpecified)
+             .ToListAsync();
+
+        return results
+            .Where(p => p.FullName.Contains(searchText));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -142,7 +170,7 @@
     private async Task Close()
     {
 
-        await BlazoredModal.Cancel();
+        await BlazoredModal.CloseAsync();
 
     }
 
@@ -158,7 +186,7 @@
 
 
             await _db.SaveChangesAsync();
-            await BlazoredModal.Close(ModalResult.Ok<Orphan>(Orphan));
+            await BlazoredModal.CloseAsync(ModalResult.Ok<Orphan>(Orphan));
 
 
         }
@@ -168,48 +196,20 @@
         }
     }
 
-    private async void ShowParentDetails(Parent parent)
+    private async Task<Parent> AddNewParent(string searchText)
     {
 
         var Params = new ModalParameters();
-        Params.Add(nameof(Parent), parent);
+        Params.Add(nameof(Parent), null);
         var Options = new ModalOptions { ContentScrollable = true };
         var mymodal = Modal.Show<ParentDetails>("Add Parent", Params, Options);
         var result = await mymodal.Result;
 
         if (!result.Cancelled)
         {
-            if (parent == null)
-            {
-                AddParentToList((Parent)result.Data);
-            }
-            else
-            {
-                UpdateParentInList((Parent)result.Data);
-            }
-            StateHasChanged();
+            return (Parent)result.Data;
         }
-
+        return null;
     }
 
-    private void AddParentToList(Parent parent)
-    {
-        if (parent != null)
-        {
-            _ParentsList.Add(parent);
-        }
-
-
-    }
-
-    private void UpdateParentInList(Parent parent)
-    {
-
-        int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
-        _ParentsList.RemoveAt(ParentToRemove);
-        _ParentsList.Insert(ParentToRemove, parent);
-
-    }
-
-    private List<Parent> _ParentsList;
 }

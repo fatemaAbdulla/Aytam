@@ -26,8 +26,8 @@ namespace Aytam.Data
         public DbSet<Parent> Parents { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Person> People { get; set; }
-        public DbSet<Sponser> Sponsers { get; set; }
-        public DbSet<Sponsership> Sponserships { get; set; }
+        public DbSet<Sponsor> Sponsors { get; set; }
+        public DbSet<Sponsorship> Sponsorships { get; set; }
        
 
 
