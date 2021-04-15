@@ -1,15 +1,15 @@
 ﻿
-@page "/parents"
+@page "/sponsors"
 @using Aytam.Data
 @using Aytam.Components
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext _db
 @inject IModalService Modal
 
-<h1>Parents</h1>
+<h1>Sponsors</h1>
 
 
-@if (_ParentsList == null)
+@if (_SponsorsList == null)
 {
     <p>
         <em>Loading...</em>
@@ -21,7 +21,7 @@ else
 
     <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
 
-    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-outline-dark">Add Parent</button>
+    <button @onclick="() => { ShowSponsorDetails(null); }" class="btn btn-outline-dark">Add Sponsor</button>
 
 
     <table class="table">
@@ -36,7 +36,7 @@ else
         </thead>
 
         <tbody>
-            @foreach (var item in _ParentsList)
+            @foreach (var item in _SponsorsList)
             {
                 <tr>
                     <td>@item.FullName</td>
@@ -44,10 +44,10 @@ else
                     <td>@item.Gender</td>
                     <td>@item.Age</td>
                     <td>
-                        <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteParent(item.ID); }">
+                        <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteSponsor(item.ID); }">
                             <span class="oi oi-trash" aria-hidden="true"></span>
                         </button> &nbsp; &nbsp;
-                        <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowParentDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowSponsorDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
                     </td>
 
                 </tr>
@@ -65,7 +65,7 @@ else
 @code {
 
 
-    private List<Parent> _ParentsList;
+    private List<Sponsor> _SponsorsList;
     private string _Message = "";
     private AlertType _AlertType = AlertType.Secondary;
 
@@ -75,21 +75,21 @@ else
     {
         if (firstRender)
         {
-            _ParentsList = await _db.Parents.ToListAsync();
+            _SponsorsList = await _db.Sponsors.ToListAsync();
             StateHasChanged();
         }
 
     }
 
-    private async Task DeleteParent(int ID)
+    private async Task DeleteSponsor(int ID)
     {
         try
         {
-            Parent _Parent = await _db.Parents.FindAsync(ID);
-            _db.Parents.Remove(_Parent);
+            Sponsor _Sponsor = await _db.Sponsors.FindAsync(ID);
+            _db.Sponsors.Remove(_Sponsor);
             await _db.SaveChangesAsync();
 
-            _ParentsList.Remove(_Parent);
+            _SponsorsList.Remove(_Sponsor);
             _Message = "Deleted Successfully";
             _AlertType = AlertType.Success;
         }
@@ -101,46 +101,46 @@ else
     }
 
 
-    private void AddParentToList(Parent parent)
+    private void AddSponsorToList(Sponsor sponsor)
     {
-        if (parent != null)
+        if (sponsor != null)
         {
-            _ParentsList.Add(parent);
+            _SponsorsList.Add(sponsor);
         }
 
 
     }
 
-    private void UpdateParentInList(Parent parent)
+    private void UpdateSponsorInList(Sponsor sponsor)
     {
 
-        int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
-        _ParentsList.RemoveAt(ParentToRemove);
-        _ParentsList.Insert(ParentToRemove, parent);
+        int SponsorToRemove = _SponsorsList.FindIndex(s => s.ID == sponsor.ID);
+        _SponsorsList.RemoveAt(SponsorToRemove);
+        _SponsorsList.Insert(SponsorToRemove, sponsor);
 
 
 
 
     }
 
-    private async void ShowParentDetails(Parent parent)
+    private async void ShowSponsorDetails(Sponsor sponsor)
     {
 
         var Params = new ModalParameters();
-        Params.Add(nameof(Parent), parent);
+        Params.Add(nameof(Sponsor), sponsor);
         var Options = new ModalOptions { ContentScrollable = true };
-        var mymodal= Modal.Show<ParentDetails>("Add Parent", Params, Options);
+        var mymodal= Modal.Show<SponsorDetails>("Add Sponsor", Params, Options);
         var result = await mymodal.Result;
 
         if (!result.Cancelled)
         {
-            if (parent == null)
+            if (sponsor == null)
             {
-                AddParentToList((Parent)result.Data);
+                AddSponsorToList((Sponsor)result.Data);
             }
             else
             {
-                UpdateParentInList((Parent)result.Data);
+                UpdateSponsorInList((Sponsor)result.Data);
             }
             StateHasChanged();
         }

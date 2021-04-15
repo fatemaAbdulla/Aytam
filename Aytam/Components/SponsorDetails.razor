@@ -1,0 +1,148 @@
+﻿
+@using Aytam.Data
+@using BlazorDateRangePicker
+@using System.Globalization
+@inject ApplicationDbContext _db
+
+
+<EditForm Model="@sponsor" OnValidSubmit="@OnValidSubmit">
+    <div class="modal-body">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label for="FirstName">First Name:</label><br />
+            <InputText @bind-Value="@sponsor.FirstName" type="text" class="form-control" id="FirstName" /><br />
+        </div>
+        <div class="form-group">
+            <label for="MiddleNames">Middle Names:</label><br />
+            <InputText @bind-Value="@sponsor.MiddleNames" type="text" class="form-control" id="MiddleNames" /><br />
+        </div>
+        <div class="form-group">
+            <label for="LastName">Last Name:</label><br />
+            <InputText @bind-Value="@sponsor.LastName" type="text" class="form-control" id="LastName" /><br />
+        </div>
+        <div class="form-group">
+            <label for="CPR">CPR:</label><br />
+            <InputText @bind-Value="@sponsor.CPR" type="text" class="form-control" id="CPR" /><br />
+        </div>
+        <div class="form-group">
+            <label for="Gender">Gender:</label><br />
+                                               <InputSelect @bind-Value="@sponsor.Gender" class ="form-control">
+                                                   @foreach (var gender in Enum.GetValues(typeof(Gender)))
+                                                   {
+                                                       <option value="@gender">@gender.ToString()</option>
+                                                   }
+                                               </InputSelect>
+        </div>
+        <div class="form-group">
+            <label for="MaritalStatus">Marital Status:</label><br />
+            <InputSelect @bind-Value="@sponsor.MaritalStatus" class="form-control">
+                @foreach (MaritalStatus status in Enum.GetValues(typeof(MaritalStatus)))
+                {
+                    <option value="@status">@status.ToString()</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label for="DOB">Date Of Birth:</label><br />
+            <DateRangePicker SingleDatePicker="true" @bind-StartDate="SelectedDate" Culture="Culture" />
+
+        </div>
+        <div class="form-group">
+            <label for="Notes">Notes:</label><br />
+
+            <InputTextArea @bind-Value="@sponsor.Notes" type="text" class="form-control" id="Notes" /><br />
+        </div>
+
+
+
+
+
+        <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+        <button type="submit" class="btn btn-success">@ButtonText</button>
+
+    </div>
+</EditForm>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+
+    [Parameter]
+    public Sponsor sponsor { get; set; }
+    [Parameter]
+    public EventCallback<Sponsor> OnSponsorAdded { get; set; }
+    [Parameter]
+    public EventCallback<Sponsor> OnSponsorUpdated { get; set; }
+    private string ButtonText = "Add Sponsor";
+    private bool EditMode = false;
+    private string _ErrorMessage;
+    public string SelectedGenderValue
+    {
+        get { return ((int)sponsor.Gender).ToString(); }
+        set { sponsor.Gender = (Gender)int.Parse(value); }
+    }
+    public DateTimeOffset? SelectedDate
+    {
+        get { return new DateTimeOffset(sponsor.DOB); }
+        set
+        {
+            sponsor.DOB = value.GetValueOrDefault().Date;
+        }
+    }
+    private CultureInfo Culture = new CultureInfo("en-GB");
+
+
+    private async Task Close()
+    {
+        //await OnSponsorAdded.InvokeAsync(null);
+        await BlazoredModal.CancelAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            if (!EditMode)
+            {
+                await _db.Sponsors.AddAsync(sponsor);
+            }
+
+
+            await _db.SaveChangesAsync();
+            await BlazoredModal.CloseAsync(ModalResult.Ok<Sponsor>(sponsor));
+
+
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (sponsor != null)
+        {
+            EditMode = true;
+            ButtonText = "Save Changes";
+            _db.Attach(sponsor);
+        }
+        else
+        {
+            sponsor = new Sponsor();
+        }
+
+    }
+
+
+
+}

@@ -1,0 +1,162 @@
+﻿
+@page "/sponsorships"
+@using Aytam.Data
+@using Aytam.Components
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+@inject IModalService Modal
+
+<h1>Sponsorships</h1>
+
+
+@if (_SponsorshipsList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+
+}
+else
+{
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+
+    <button @onclick="() => { ShowSponsorshipDetails(null); }" class="btn btn-outline-dark">Add Sponsorship</button>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th scope="col">Sponsor</th>
+                <th scope="col">Orphan</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Payment Frequency</th>
+                <th scope="col">Notes</th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in _SponsorshipsList)
+            {
+            <tr>
+
+                <td>@item.Sponsor.FullName</td>
+                <td>@item.Orphan.FullName</td>
+                <td>@item.StartDate.ToShortDateString()</td>
+                <td>@item.EndDate.ToShortDateString()</td>
+                <td>@item.Amount</td>
+                <td>@item.PaymentFrequency</td>
+                <td>@item.Notes</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteSponsorship(item.ID); }">
+                        <span class="oi oi-trash" aria-hidden="true"></span>
+                    </button> &nbsp; &nbsp;
+                    <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowSponsorshipDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                </td>
+
+            </tr>
+            }
+
+        </tbody>
+
+
+    </table>
+}
+
+
+
+
+@code {
+
+
+    private List<Sponsorship> _SponsorshipsList;
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _SponsorshipsList = await _db.Sponsorships
+                .Include(s=> s.Orphan)
+                .Include(s=> s.Sponsor)
+                .ToListAsync();
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task DeleteSponsorship(int ID)
+    {
+        try
+        {
+            Sponsorship _Sponsorship = await _db.Sponsorships.FindAsync(ID);
+            _db.Sponsorships.Remove(_Sponsorship);
+            await _db.SaveChangesAsync();
+
+            _SponsorshipsList.Remove(_Sponsorship);
+            _Message = "Deleted Successfully";
+            _AlertType = AlertType.Success;
+        }
+        catch (Exception ex)
+        {
+            _Message = ex.Message;
+            _AlertType = AlertType.Danger;
+        }
+    }
+
+
+    private void AddSponsorshipToList(Sponsorship sponsorship)
+    {
+        if (sponsorship != null)
+        {
+            _SponsorshipsList.Add(sponsorship);
+        }
+
+
+    }
+
+    private void UpdateSponsorshipInList(Sponsorship sponsorship)
+    {
+
+        int SponsorshipToRemove = _SponsorshipsList.FindIndex(s => s.ID == sponsorship.ID);
+        _SponsorshipsList.RemoveAt(SponsorshipToRemove);
+        _SponsorshipsList.Insert(SponsorshipToRemove, sponsorship);
+
+
+
+
+    }
+
+    private async void ShowSponsorshipDetails(Sponsorship sponsorship)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(Sponsorship), sponsorship);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal= Modal.Show<SponsorshipDetails>("Add Sponsorship", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (sponsorship == null)
+            {
+                AddSponsorshipToList((Sponsorship)result.Data);
+            }
+            else
+            {
+                UpdateSponsorshipInList((Sponsorship)result.Data);
+            }
+            StateHasChanged();
+        }
+
+    }
+
+
+}

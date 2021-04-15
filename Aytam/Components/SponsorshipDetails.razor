@@ -1,0 +1,231 @@
+﻿
+@using Aytam.Data
+@using BlazorDateRangePicker
+@using System.Globalization
+@using Blazored.Typeahead
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+@inject IModalService Modal
+
+
+
+<EditForm Model="@sponsorship" OnValidSubmit="@OnValidSubmit">
+    <div class="modal-body">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>Sponsor:</label><br />
+            <BlazoredTypeahead SearchMethod="SearchSponsor"
+                               AddItemOnEmptyResultMethod="AddNewSponsor"
+                               @bind-Value="@sponsorship.Sponsor">
+                <SelectedTemplate Context="Sponsor">
+                    @Sponsor.FullName
+                </SelectedTemplate>
+                <ResultTemplate Context="Sponsor">
+                    @Sponsor.FullName
+                </ResultTemplate>
+
+                <NotFoundTemplate Context="Sponsor">
+                    Add New Sponsor
+                </NotFoundTemplate>
+            </BlazoredTypeahead>
+
+        </div>
+
+        <div class="form-group">
+            <label>Orphan:</label><br />
+            <BlazoredTypeahead SearchMethod="SearchOrphan"
+                               AddItemOnEmptyResultMethod="AddNewOrphan"
+                               @bind-Value="@sponsorship.Orphan">
+                <SelectedTemplate Context="Orphan">
+                    @Orphan.FullName
+                </SelectedTemplate>
+                <ResultTemplate Context="Orphan">
+                    @Orphan.FullName
+                </ResultTemplate>
+
+                <NotFoundTemplate Context="Orphan">
+                    Add New Orphan
+                </NotFoundTemplate>
+            </BlazoredTypeahead>
+
+        </div>
+
+        <div class="form-group">
+            <label for="StartDate">Start Date:</label><br />
+            <DateRangePicker 
+                             @bind-StartDate="SelectedStartDate"
+                             @bind-EndDate="SelectedEndDate" Culture="Culture" />
+
+        </div>
+
+        
+
+
+        <div class="form-group">
+            <label for="Amount">Amount:</label><br />
+            
+            <InputNumber @bind-Value="@sponsorship.Amount" class="form-control" />
+               
+        </div>
+
+        <div class="form-group">
+            <label for="PaymentFrequency">Payment Frequency:</label><br />
+            <InputSelect @bind-Value="@sponsorship.PaymentFrequency" class="form-control">
+                @foreach (var paymentFrequency in Enum.GetValues(typeof(PaymentFrequency)))
+                {
+                    <option value="@paymentFrequency">@paymentFrequency.ToString()</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label for="Notes">Notes:</label><br />
+
+            <InputTextArea @bind-Value="@sponsorship.Notes" type="text" class="form-control" id="Notes" /><br />
+        </div>
+
+
+        <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+        <button type="submit" class="btn btn-success">@ButtonText</button>
+
+    </div>
+</EditForm>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+
+    [Parameter]
+    public Sponsorship sponsorship { get; set; }
+    [Parameter]
+    public EventCallback<Sponsorship> OnSponsorshipAdded { get; set; }
+    [Parameter]
+    public EventCallback<Sponsorship> OnSponsorshipUpdated { get; set; }
+    private string ButtonText = "Add Sponsorship";
+    private bool EditMode = false;
+    private string _ErrorMessage;
+
+
+    private CultureInfo Culture = new CultureInfo("en-GB");
+
+
+    private async Task<IEnumerable<Sponsor>> SearchSponsor(string searchText)
+    {
+        var results = await _db.Sponsors.ToListAsync();
+
+        return results.Where(p => p.FullName.Contains(searchText));
+    }
+
+    private async Task<IEnumerable<Orphan>> SearchOrphan(string searchText)
+    {
+        var results = await _db.Orphans.ToListAsync();
+
+        return results.Where(p => p.FullName.Contains(searchText));
+    }
+
+
+    private async Task Close()
+    {
+        //await OnParentAdded.InvokeAsync(null);
+        await BlazoredModal.CancelAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            if (!EditMode)
+            {
+                await _db.Sponsorships.AddAsync(sponsorship);
+            }
+
+
+            await _db.SaveChangesAsync();
+            await BlazoredModal.CloseAsync(ModalResult.Ok<Sponsorship>(sponsorship));
+
+
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (sponsorship != null)
+        {
+            EditMode = true;
+            ButtonText = "Save Changes";
+            _db.Attach(sponsorship);
+        }
+        else
+        {
+            sponsorship = new Sponsorship {
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddYears(1),
+                PaymentFrequency = PaymentFrequency.Monthly
+            };
+        }
+
+    }
+
+    private async Task<Sponsor> AddNewSponsor(string searchText)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(Sponsor), null);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<SponsorDetails>("Add Sponsor", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            return (Sponsor)result.Data;
+        }
+        return null;
+    }
+
+    private async Task<Orphan> AddNewOrphan(string searchText)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(Orphan), null);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<OrphanDetails>("Add Orphan", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            return (Orphan)result.Data;
+        }
+        return null;
+    }
+
+    public DateTimeOffset? SelectedStartDate
+    {
+        get { return sponsorship?.StartDate ?? new DateTimeOffset( DateTime.Now); }
+        set
+        {
+            sponsorship.StartDate = value.GetValueOrDefault().Date;
+        }
+    }
+    public DateTimeOffset? SelectedEndDate
+    {
+        get { return sponsorship?.EndDate ?? new DateTimeOffset(DateTime.Now); }
+        set
+        {
+            sponsorship.EndDate = value.GetValueOrDefault().Date;
+        }
+    }
+
+}

@@ -28,12 +28,14 @@ namespace Aytam.Data
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(MiddleNames))
-                {
-                    return FirstName + " " + LastName;
-                }
+                return string.Join(" ", FirstName ?? "", MiddleNames ?? "", LastName ?? "");
 
-                return FirstName + " " + MiddleNames + " " + LastName;
+                //if (string.IsNullOrWhiteSpace(MiddleNames))
+                //{
+                //    return FirstName + " " + LastName;
+                //}
+
+                //return FirstName + " " + MiddleNames + " " + LastName;
             }
         }
 
