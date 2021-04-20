@@ -12,39 +12,52 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="Countries" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Countries
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="job-titles" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Job Titles
-            </NavLink>
-        </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="parents" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Parents
+                <span class="oi oi-people" aria-hidden="true"></span> Parents
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="orphans" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Orphans
+                <span class="oi oi-person" aria-hidden="true"></span> Orphans
             </NavLink>
         </li>
-       
+
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="sponsors" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Sponsors
+                <span class="oi oi-people" aria-hidden="true"></span> Sponsors
             </NavLink>
         </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="sponsorships" Match="NavLinkMatch.All">
+                <span class="oi oi-shield" aria-hidden="true"></span> Sponsorships
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <div class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Settings
+            </div>
+        </li>
+
+        @if (expandSubNav)
+        {
+            <li class="nav-item pr-3 pl-5">
+                <NavLink class="nav-link" href="Countries" Match="NavLinkMatch.All">
+                    <span class="oi oi-globe" aria-hidden="true"></span> Countries
+                </NavLink>
+            </li>
+            <li class="nav-item pr-3 pl-5">
+                <NavLink class="nav-link" href="job-titles" Match="NavLinkMatch.All">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Job Titles
+                </NavLink>
+            </li>
+        }
     </ul>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
-
+    private bool expandSubNav = false;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()

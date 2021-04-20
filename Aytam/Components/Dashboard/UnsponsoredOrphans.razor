@@ -1,0 +1,32 @@
+@using Aytam.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+
+<div class="card">
+  <h5 class="card-header">Waiting Orphans</h5>
+  <div class="card-body">
+    @if (TotalUnsponsoredOrphans == null)
+    {
+        <p>Loading..</p>
+    }else{
+<h1 class="card-title">@TotalUnsponsoredOrphans<small style="font-size:40%">&nbsp;Unsponsonred Orphans</small></h1>
+    
+    }
+    
+  </div>
+</div>
+
+@code {
+    private int? TotalUnsponsoredOrphans = null;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            TotalUnsponsoredOrphans = await _db.Orphans.CountAsync(o=> o.Sponsorships.Count == 0);
+            StateHasChanged();
+        }
+
+    }
+
+}
