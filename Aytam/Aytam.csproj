@@ -23,5 +23,6 @@
     <Folder Include="wwwroot\App_Data\" />
     <Folder Include="Migrations\" />
     <Folder Include="Components\Dashboard\" />
+    <Folder Include="Logic\" />
   </ItemGroup>
 </Project>

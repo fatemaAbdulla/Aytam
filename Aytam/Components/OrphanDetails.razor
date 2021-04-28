@@ -119,7 +119,7 @@
              .ToListAsync();
 
         return results
-            .Where(p => p.FullName.Contains(searchText));
+            .Where(p => p.FullName.ToLower().Contains(searchText.ToLower()));
     }
 
     private async Task<IEnumerable<Parent>> SearchMother(string searchText)
@@ -129,7 +129,7 @@
              .ToListAsync();
 
         return results
-            .Where(p => p.FullName.Contains(searchText));
+            .Where(p => p.FullName.ToLower().Contains(searchText.ToLower()));
     }
 
     protected override async Task OnParametersSetAsync()

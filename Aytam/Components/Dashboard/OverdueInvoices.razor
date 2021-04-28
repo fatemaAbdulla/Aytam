@@ -1,0 +1,37 @@
+@using Aytam.Data
+@using Aytam.Logic
+@using Microsoft.EntityFrameworkCore
+@inject InvoiceService InvoiceService
+
+<div class="card">
+    <h5 class="card-header">Overdue Amount</h5>
+    <div class="card-body">
+        @if (TotalOverdue == null || NumberOfOverdue == null)
+        {
+            <p>Loading..</p>
+        }
+        else
+        {
+            <h1 class="card-title">£@TotalOverdue<small style="font-size:40%">&nbsp;@NumberOfOverdue Invoices</small></h1>
+
+        }
+
+    </div>
+</div>
+
+@code {
+    private decimal? TotalOverdue = null;
+    private int? NumberOfOverdue = null;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var OverdueInvoices = await InvoiceService.GetOverdueInvoices();
+            TotalOverdue = OverdueInvoices.Sum(i => i.AmountDue);
+            NumberOfOverdue = OverdueInvoices.Count;
+            StateHasChanged();
+        }
+
+    }
+
+}

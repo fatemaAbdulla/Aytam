@@ -16,7 +16,7 @@ namespace Aytam.Data
         public DateTime EndDate { get; set; }
         public decimal Amount { get; set; }
         public PaymentFrequency PaymentFrequency { get; set; }
-        public List<Invoice> Invoices { get; set; }
+        public List<Invoice> Invoices { get; set; } = new List<Invoice>();
         public string Notes { get; set; }
     }
 }

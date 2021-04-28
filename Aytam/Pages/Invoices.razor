@@ -1,0 +1,79 @@
+﻿
+@page "/invoices"
+@using Aytam.Data
+@using Aytam.Components
+@using Aytam.Logic
+@using Microsoft.EntityFrameworkCore
+@inject IModalService Modal
+@inject InvoiceService InvoiceService
+
+<h1>Invoices</h1>
+
+
+@if (_InvoicesList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+
+}
+else
+{
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Issue Date</th>
+                <th scope="col">Due Date</th>
+                <th scope="col">TotalAmount</th>
+                <th scope="col">AmountDue</th>
+                <th scope="col">Sponsor</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in _InvoicesList)
+            {
+                <tr>
+                    <td>@item.IssueDate.ToShortDateString()</td>
+                    <td>@item.DueDate.ToShortDateString()</td>
+                    <td>@item.TotalAmount</td>
+                    <td>@item.AmountDue</td>
+                    <td>@item.Sponsorship?.Sponsor?.FullName</td>
+                </tr>
+            }
+
+        </tbody>
+
+
+    </table>
+}
+
+
+
+
+@code {
+
+
+    private List<Invoice> _InvoicesList;
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _InvoicesList = await InvoiceService.GetInvoices();
+            StateHasChanged();
+        }
+    }
+
+
+
+
+
+}

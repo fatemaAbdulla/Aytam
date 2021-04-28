@@ -11,6 +11,7 @@ namespace Aytam.Data
         public DateTime IssueDate { get; set; }
         public DateTime DueDate { get; set; }
         public decimal TotalAmount { get; set; }
+        public Sponsorship Sponsorship { get; set; }
         public decimal AmountPaid
         {
             get
@@ -26,7 +27,7 @@ namespace Aytam.Data
                 return TotalAmount - AmountPaid;
             }
         }
-        public List<Payment> Payments { get; set; }
+        public List<Payment> Payments { get; set; } = new List<Payment>();
         public string Notes { get; set; }
         public InvoicePaymentStatus PaymentStatus
         {

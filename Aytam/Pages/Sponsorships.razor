@@ -1,9 +1,9 @@
 ﻿
 @page "/sponsorships"
 @using Aytam.Data
+@using Aytam.Logic 
 @using Aytam.Components
-@using Microsoft.EntityFrameworkCore
-@inject ApplicationDbContext _db
+@inject SponsorshipService SponsorshipService
 @inject IModalService Modal
 
 <h1>Sponsorships</h1>
@@ -42,23 +42,23 @@ else
         <tbody>
             @foreach (var item in _SponsorshipsList)
             {
-            <tr>
+                <tr>
 
-                <td>@item.Sponsor.FullName</td>
-                <td>@item.Orphan.FullName</td>
-                <td>@item.StartDate.ToShortDateString()</td>
-                <td>@item.EndDate.ToShortDateString()</td>
-                <td>@item.Amount</td>
-                <td>@item.PaymentFrequency</td>
-                <td>@item.Notes</td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteSponsorship(item.ID); }">
-                        <span class="oi oi-trash" aria-hidden="true"></span>
-                    </button> &nbsp; &nbsp;
-                    <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowSponsorshipDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
-                </td>
+                    <td>@item.Sponsor.FullName</td>
+                    <td>@item.Orphan.FullName</td>
+                    <td>@item.StartDate.ToShortDateString()</td>
+                    <td>@item.EndDate.ToShortDateString()</td>
+                    <td>@item.Amount</td>
+                    <td>@item.PaymentFrequency</td>
+                    <td>@item.Notes</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteSponsorship(item.ID); }">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button> &nbsp; &nbsp;
+                        <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowSponsorshipDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                    </td>
 
-            </tr>
+                </tr>
             }
 
         </tbody>
@@ -83,10 +83,7 @@ else
     {
         if (firstRender)
         {
-            _SponsorshipsList = await _db.Sponsorships
-                .Include(s=> s.Orphan)
-                .Include(s=> s.Sponsor)
-                .ToListAsync();
+            _SponsorshipsList = await SponsorshipService.GetAllSponsorships();
             StateHasChanged();
         }
 
@@ -96,10 +93,7 @@ else
     {
         try
         {
-            Sponsorship _Sponsorship = await _db.Sponsorships.FindAsync(ID);
-            _db.Sponsorships.Remove(_Sponsorship);
-            await _db.SaveChangesAsync();
-
+            Sponsorship _Sponsorship = await SponsorshipService.DeleteSponsorship(ID);
             _SponsorshipsList.Remove(_Sponsorship);
             _Message = "Deleted Successfully";
             _AlertType = AlertType.Success;
@@ -140,7 +134,7 @@ else
         var Params = new ModalParameters();
         Params.Add(nameof(Sponsorship), sponsorship);
         var Options = new ModalOptions { ContentScrollable = true };
-        var mymodal= Modal.Show<SponsorshipDetails>("Add Sponsorship", Params, Options);
+        var mymodal = Modal.Show<SponsorshipDetails>("Add Sponsorship", Params, Options);
         var result = await mymodal.Result;
 
         if (!result.Cancelled)

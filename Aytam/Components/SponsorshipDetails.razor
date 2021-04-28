@@ -1,10 +1,12 @@
-﻿
-@using Aytam.Data
+﻿@using Aytam.Data
+@using Aytam.Logic
 @using BlazorDateRangePicker
 @using System.Globalization
 @using Blazored.Typeahead
 @using Microsoft.EntityFrameworkCore
-@inject ApplicationDbContext _db
+@inject SponsorshipService SponsorshipService
+@inject SponsorService SponsorService
+@inject OrphanService OrphanService
 @inject IModalService Modal
 
 
@@ -16,8 +18,7 @@
 
         <div class="form-group">
             <label>Sponsor:</label><br />
-            <BlazoredTypeahead SearchMethod="SearchSponsor"
-                               AddItemOnEmptyResultMethod="AddNewSponsor"
+            <BlazoredTypeahead SearchMethod="SearchSponsor" AddItemOnEmptyResultMethod="AddNewSponsor"
                                @bind-Value="@sponsorship.Sponsor">
                 <SelectedTemplate Context="Sponsor">
                     @Sponsor.FullName
@@ -35,8 +36,7 @@
 
         <div class="form-group">
             <label>Orphan:</label><br />
-            <BlazoredTypeahead SearchMethod="SearchOrphan"
-                               AddItemOnEmptyResultMethod="AddNewOrphan"
+            <BlazoredTypeahead SearchMethod="SearchOrphan" AddItemOnEmptyResultMethod="AddNewOrphan"
                                @bind-Value="@sponsorship.Orphan">
                 <SelectedTemplate Context="Orphan">
                     @Orphan.FullName
@@ -54,20 +54,18 @@
 
         <div class="form-group">
             <label for="StartDate">Start Date:</label><br />
-            <DateRangePicker 
-                             @bind-StartDate="SelectedStartDate"
-                             @bind-EndDate="SelectedEndDate" Culture="Culture" />
+            <DateRangePicker @bind-StartDate="SelectedStartDate" @bind-EndDate="SelectedEndDate" Culture="Culture" />
 
         </div>
 
-        
+
 
 
         <div class="form-group">
             <label for="Amount">Amount:</label><br />
-            
+
             <InputNumber @bind-Value="@sponsorship.Amount" class="form-control" />
-               
+
         </div>
 
         <div class="form-group">
@@ -111,23 +109,22 @@
     private string ButtonText = "Add Sponsorship";
     private bool EditMode = false;
     private string _ErrorMessage;
-
+    private IEnumerable<Orphan> allOrphans;
+    private IEnumerable<Sponsor> allSponsors;
 
     private CultureInfo Culture = new CultureInfo("en-GB");
 
 
     private async Task<IEnumerable<Sponsor>> SearchSponsor(string searchText)
     {
-        var results = await _db.Sponsors.ToListAsync();
 
-        return results.Where(p => p.FullName.Contains(searchText));
+        return allSponsors.Where(p => p.FullName.ToLower().Contains(searchText.ToLower()));
     }
 
     private async Task<IEnumerable<Orphan>> SearchOrphan(string searchText)
     {
-        var results = await _db.Orphans.ToListAsync();
 
-        return results.Where(p => p.FullName.Contains(searchText));
+        return allOrphans.Where(p => p.FullName.ToLower().Contains(searchText.ToLower()));
     }
 
 
@@ -139,16 +136,18 @@
 
     private async Task OnValidSubmit(EditContext editContext)
     {
+        Sponsorship added = null;
         try
         {
             if (!EditMode)
             {
-                await _db.Sponsorships.AddAsync(sponsorship);
+                added = await SponsorshipService.AddSponsorship(sponsorship);
+                //_db.Sponsorships.AddAsync(sponsorship);
             }
 
 
-            await _db.SaveChangesAsync();
-            await BlazoredModal.CloseAsync(ModalResult.Ok<Sponsorship>(sponsorship));
+            //await _db.SaveChangesAsync();
+            await BlazoredModal.CloseAsync(ModalResult.Ok<Sponsorship>(added));
 
 
 
@@ -162,15 +161,18 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        allOrphans = await OrphanService.GetAllOrphans();
+        allSponsors = await SponsorService.GetAllSponsors();
         if (sponsorship != null)
         {
             EditMode = true;
             ButtonText = "Save Changes";
-            _db.Attach(sponsorship);
+            //_db.Attach(sponsorship);
         }
         else
         {
-            sponsorship = new Sponsorship {
+            sponsorship = new Sponsorship
+            {
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddYears(1),
                 PaymentFrequency = PaymentFrequency.Monthly
@@ -213,7 +215,7 @@
 
     public DateTimeOffset? SelectedStartDate
     {
-        get { return sponsorship?.StartDate ?? new DateTimeOffset( DateTime.Now); }
+        get { return sponsorship?.StartDate ?? new DateTimeOffset(DateTime.Now); }
         set
         {
             sponsorship.StartDate = value.GetValueOrDefault().Date;

@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Aytam.Areas.Identity;
 using Aytam.Data;
+using Aytam.Logic;
 using Blazored.Modal;
 
 namespace Aytam
@@ -34,13 +35,17 @@ namespace Aytam
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSingleton<WeatherForecastService>();
+            services.AddTransient<SponsorshipService>();
+            services.AddTransient<SponsorService>();
+            services.AddTransient<OrphanService>();
+            services.AddTransient<InvoiceService>();
             services.AddBlazoredModal();
         }
 
