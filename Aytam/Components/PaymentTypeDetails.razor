@@ -1,0 +1,96 @@
+﻿
+@using Aytam.Data
+@using BlazorDateRangePicker
+@using System.Globalization
+@using Aytam.Logic
+@inject PaymentTypeService PTservice
+
+
+<EditForm Model="@paymentType" OnValidSubmit="@OnValidSubmit">
+    <div class="modal-body">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label for="Type">Type:</label><br />
+            <InputText @bind-Value="@paymentType.Type" type="text" class="form-control" id="Type" /><br />
+        </div>
+        <div class="form-group">
+            <label for="Notes">Notes:</label><br />
+            <InputText @bind-Value="@paymentType.Notes" type="text" class="form-control" id="Notes" /><br />
+        </div>
+        <div class="form-group">
+            <InputCheckbox @bind-Value="@paymentType.isExpense" class="form-control" id="isExpense">Is Expense</InputCheckbox>
+<br />
+        </div>
+        <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+        <button type="submit" class="btn btn-success">@ButtonText</button>
+
+    </div>
+</EditForm>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+
+    [Parameter]
+    public PaymentType paymentType { get; set; }
+
+    private string ButtonText = "Add Payment Type";
+    private bool EditMode = false;
+    private string _ErrorMessage;
+
+    private async Task Close()
+    {
+        //await OnParentAdded.InvokeAsync(null);
+        await BlazoredModal.CancelAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            if (!EditMode)
+            {
+                paymentType = await PTservice.AddNewPaymentType(paymentType);
+            }
+            else
+            {
+                paymentType = await PTservice.UpdatePaymentType(paymentType);
+            }
+
+
+            await BlazoredModal.CloseAsync(ModalResult.Ok<PaymentType>(paymentType));
+
+
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (paymentType != null)
+        {
+            EditMode = true;
+            ButtonText = "Save Changes";
+
+        }
+        else
+        {
+            paymentType = new PaymentType();
+        }
+
+    }
+
+
+
+}

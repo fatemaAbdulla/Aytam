@@ -1,0 +1,127 @@
+﻿
+@page "/payment-types"
+@using Aytam.Data
+@using Aytam.Components
+@using Aytam.Logic
+@inject IModalService Modal
+@inject PaymentTypeService PTservice
+
+<h1>Payment Types</h1>
+
+
+@if (_PaymentTypes == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+
+}
+else
+{
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+    <button @onclick="() => { ShowPaymentTypeDetails(null); }" class="btn btn-outline-dark">Add Payment Type</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Notes</th>
+                <th scope="col">Is Expense</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in _PaymentTypes)
+            {
+                <tr>
+                    <td>@item.Type</td>
+                    <td>@item.Notes</td>
+                    @if (item.isExpense)
+                    {
+                        <td>Expense</td>
+                    }
+                    else
+                    {
+                        <td>Income</td>
+                    }
+
+                </tr>
+            }
+
+        </tbody>
+
+
+    </table>
+}
+
+
+
+
+@code {
+
+
+    private List<PaymentType> _PaymentTypes;
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var list = await PTservice.GetAllPaymentTypes();
+            _PaymentTypes = list.ToList();
+            StateHasChanged();
+        }
+    }
+
+
+    private async void ShowPaymentTypeDetails(PaymentType paymentType)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(PaymentType), paymentType);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<PaymentTypeDetails>("Add Payment Type", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (paymentType == null)
+            {
+                AddNewPaymentType((PaymentType)result.Data);
+            }
+            else
+            {
+                UpdatePaymentType((PaymentType)result.Data);
+            }
+            StateHasChanged();
+        }
+
+    }
+
+    private void AddNewPaymentType(PaymentType paymentType)
+    {
+        if (paymentType != null)
+        {
+            _PaymentTypes.Add(paymentType);
+        }
+
+
+    }
+
+    private void UpdatePaymentType(PaymentType paymentType)
+    {
+
+        int TypeToRemove = _PaymentTypes.FindIndex(p => p.ID == paymentType.ID);
+        _PaymentTypes.RemoveAt(TypeToRemove);
+        _PaymentTypes.Insert(TypeToRemove, paymentType);
+
+
+
+
+    }
+
+}

@@ -41,11 +41,11 @@ namespace Aytam
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-            services.AddSingleton<WeatherForecastService>();
             services.AddTransient<SponsorshipService>();
             services.AddTransient<SponsorService>();
             services.AddTransient<OrphanService>();
             services.AddTransient<InvoiceService>();
+            services.AddTransient<PaymentTypeService>();
             services.AddBlazoredModal();
         }
 
