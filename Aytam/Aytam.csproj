@@ -24,5 +24,7 @@
     <Folder Include="Migrations\" />
     <Folder Include="Components\Dashboard\" />
     <Folder Include="Logic\" />
+    <Folder Include="Components\Orphans\" />
+    <Folder Include="Components\Parents\" />
   </ItemGroup>
 </Project>

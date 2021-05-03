@@ -1,4 +1,5 @@
 ﻿@using Aytam.Data
+@using Aytam.Components.Parents
 @using BlazorDateRangePicker
 @using System.Globalization
 @using Blazored.Typeahead
@@ -59,7 +60,7 @@
                 <ResultTemplate Context="Parent">
                     @Parent.FullName
                 </ResultTemplate>
-             
+
                 <NotFoundTemplate Context="Parent">
                     Add New Father
                 </NotFoundTemplate>
@@ -202,7 +203,7 @@
         var Params = new ModalParameters();
         Params.Add(nameof(Parent), null);
         var Options = new ModalOptions { ContentScrollable = true };
-        var mymodal = Modal.Show<ParentDetails>("Add Parent", Params, Options);
+        var mymodal = Modal.Show<ParentDetailsModal>("Add Parent", Params, Options);
         var result = await mymodal.Result;
 
         if (!result.Cancelled)

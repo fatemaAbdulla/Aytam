@@ -5,16 +5,13 @@ namespace Aytam.Data
 {
     public class Payment
     {
-        public Payment()  {  }
-        public Payment(decimal amount,bool isExpense, decimal oldBalance)
+        public Payment() { }
+        public Payment(decimal amount, bool isExpense)
         {
             Amount = amount;
             IsExpense = isExpense;
-            _Balance = isExpense ? oldBalance - amount : oldBalance + amount;
-
+            Date = DateTime.UtcNow;
         }
-
-        private decimal _Balance;
         public int ID { get; set; }
         public decimal Amount { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
@@ -33,15 +30,6 @@ namespace Aytam.Data
         public bool IsExpense { get; set; }
         public List<Document>? Documents { get; set; }
         public PaymentType? PaymentType { get; set; }
-   
-        public decimal BalanceAfterTransaction
-        {
-            get
-            {
-                return _Balance;
-            }
-        }
-
 
     }
 }

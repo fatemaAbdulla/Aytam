@@ -1,0 +1,135 @@
+﻿@using Aytam.Data
+@using Aytam.Components
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+@inject IModalService Modal
+
+
+
+@if (_ParentsList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+
+}
+else
+{
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+
+    <button @onclick="() => { ShowParentDetails(null); }" class="btn btn-outline-dark">Add Parent</button>
+
+
+    <div class="list-group">
+        @foreach (var item in _ParentsList)
+        {
+            <div class="list-group-item" @onclick="async () => { await OnParentSelected.InvokeAsync(item);}">
+                <span class="float-right">
+                    <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteParent(item.ID); }">
+                        <span class="oi oi-trash" aria-hidden="true"></span>
+                    </button> &nbsp; &nbsp;
+                    <button type="button" class="btn btn-outline-dark" @onclick="() => { ShowParentDetails(item); }"><span class="oi oi-pencil" aria-hidden="true"></span></button>
+                </span>
+                <h4>@item.FullName</h4>
+                <p>@item.CPR</p>
+                <p class="small">@item.Gender / @item.Age</p>
+
+
+            </div>
+        }
+    </div>
+}
+
+
+
+
+@code {
+
+
+    [Parameter]
+    public EventCallback<Parent> OnParentSelected { get; set; }
+    private List<Parent> _ParentsList;
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _ParentsList = await _db.Parents.ToListAsync();
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task DeleteParent(int ID)
+    {
+        try
+        {
+            Parent _Parent = await _db.Parents.FindAsync(ID);
+            _db.Parents.Remove(_Parent);
+            await _db.SaveChangesAsync();
+
+            _ParentsList.Remove(_Parent);
+            _Message = "Deleted Successfully";
+            _AlertType = AlertType.Success;
+        }
+        catch (Exception ex)
+        {
+            _Message = ex.Message;
+            _AlertType = AlertType.Danger;
+        }
+    }
+
+
+    private void AddParentToList(Parent parent)
+    {
+        if (parent != null)
+        {
+            _ParentsList.Add(parent);
+        }
+
+
+    }
+
+    private void UpdateParentInList(Parent parent)
+    {
+
+        int ParentToRemove = _ParentsList.FindIndex(p => p.ID == parent.ID);
+        _ParentsList.RemoveAt(ParentToRemove);
+        _ParentsList.Insert(ParentToRemove, parent);
+
+
+
+
+    }
+
+    private async void ShowParentDetails(Parent parent)
+    {
+
+        var Params = new ModalParameters();
+        Params.Add(nameof(Parent), parent);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<ParentDetailsModal>("Add Parent", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (parent == null)
+            {
+                AddParentToList((Parent)result.Data);
+            }
+            else
+            {
+                UpdateParentInList((Parent)result.Data);
+            }
+            StateHasChanged();
+        }
+
+    }
+
+
+}

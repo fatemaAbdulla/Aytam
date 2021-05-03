@@ -1,0 +1,117 @@
+﻿@using Aytam.Data
+@using Aytam.Logic
+@using Aytam.Components.Orphans
+@using BlazorDateRangePicker
+@using System.Globalization
+@inject InvoiceService InvoiceService
+
+
+<div class="form-group col">
+    <label for="FirstName">Amount Due:</label><br />
+    <label>@invoice.AmountDue</label>
+</div>
+<EditForm Model="@payment" OnValidSubmit="@OnValidSubmit">
+    <div class="modal-body">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row">
+            <div class="form-group col">
+                <label for="FirstName">Amount:</label><br />
+
+                <InputNumber @bind-Value="@payment.Amount" type="text" class="form-control" id="FirstName" /><br />
+            </div>
+
+        </div>
+
+
+        <div class="row">
+            <div class="form-group col">
+                <label for="DOB">Payment Date:</label><br />
+                <DateRangePicker SingleDatePicker="true" @bind-StartDate="SelectedDate" Culture="Culture" />
+
+            </div>
+            <div class="form-group col">
+                <label for="Notes">Notes:</label><br />
+
+                <InputTextArea @bind-Value="@payment.Notes" type="text" class="form-control" id="Notes" /><br />
+            </div>
+
+        </div>
+
+        <AlertMessage Message="@_ErrorMessage" AlertType="@AlertType.Danger"></AlertMessage>
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+        <button type="submit" class="btn btn-success">@ButtonText</button>
+
+    </div>
+</EditForm>
+
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+
+    [Parameter]
+    public Payment payment { get; set; } = new Payment();
+
+    [Parameter]
+    public Invoice invoice { get; set; }
+
+    [Parameter]
+    public EventCallback<Payment> OnPaymentAdded { get; set; }
+    [Parameter]
+    public EventCallback<Payment> OnPaymentUpdated { get; set; }
+    private string ButtonText = "Add Payment";
+    private bool EditMode = false;
+    private string _ErrorMessage;
+
+    public DateTimeOffset? SelectedDate
+    {
+        get { return new DateTimeOffset(payment.Date); }
+        set
+        {
+            payment.Date = value.GetValueOrDefault().Date;
+        }
+    }
+    private CultureInfo Culture = new CultureInfo("en-GB");
+
+
+    private async Task Close()
+    {
+        //await OnParentAdded.InvokeAsync(null);
+        await BlazoredModal.CancelAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            if (!EditMode)
+            {
+                payment = await InvoiceService.PayInvoice(invoice.ID, payment.Amount);
+            }
+
+
+            await BlazoredModal.CloseAsync(ModalResult.Ok<Payment>(payment));
+
+
+
+        }
+        catch (Exception ex)
+        {
+            _ErrorMessage = ex.Message;
+
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+    }
+
+
+
+}

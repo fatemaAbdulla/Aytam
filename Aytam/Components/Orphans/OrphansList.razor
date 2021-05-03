@@ -1,0 +1,144 @@
+﻿@using Aytam.Data
+@using Aytam.Components.Orphans
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext _db
+@inject IModalService Modal
+
+
+@if (_OrphansList == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+
+}
+else
+{
+
+
+    <AlertMessage Message="@_Message" AlertType="@_AlertType"></AlertMessage>
+
+    <button class="btn btn-outline-dark" @onclick="async() => { await ShowOrphanDetails(null); }">Add Orphan</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">CPR</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Age</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in _OrphansList)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.CPR</td>
+                    <td>@item.Gender</td>
+                    <td>@item.Age</td>
+                    <td>
+
+                        <button type="button" class="btn btn-outline-danger" @onclick="async () => { await DeleteOrphan(item.ID); }">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button> &nbsp; &nbsp;
+                        <button type="button" class="btn btn-outline-dark" @onclick="async () => { await ShowOrphanDetails(item); }">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+
+    </table>
+}
+
+
+
+
+@code {
+
+
+    private List<Orphan> _OrphansList;
+    private string _Message = "";
+    private AlertType _AlertType = AlertType.Secondary;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _OrphansList = await _db.Orphans.ToListAsync();
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task DeleteOrphan(int ID)
+    {
+        try
+        {
+            Orphan _Orphan = await _db.Orphans.FindAsync(ID);
+            _db.Orphans.Remove(_Orphan);
+            await _db.SaveChangesAsync();
+
+            _OrphansList.Remove(_Orphan);
+            _Message = "Deleted Successfully";
+            _AlertType = AlertType.Success;
+        }
+        catch (Exception ex)
+        {
+            _Message = ex.Message;
+            _AlertType = AlertType.Danger;
+        }
+    }
+
+    private void AddOrphanToList(Orphan orphan)
+    {
+
+        _OrphansList.Add(orphan);
+
+    }
+
+    private void UpdateOrphanInList(Orphan orphan)
+    {
+
+        int OrphanToRemove = _OrphansList.FindIndex(x => x.ID == orphan.ID);
+        _OrphansList.RemoveAt(OrphanToRemove);
+        _OrphansList.Insert(OrphanToRemove, orphan);
+
+
+    }
+
+    private async Task ShowOrphanDetails(Orphan orphan)
+    {
+        bool IsEditMode = orphan != null;
+        var Params = new ModalParameters();
+        Params.Add(nameof(Orphan), orphan);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<OrphanDetails>(IsEditMode ? "Edit Orphan" : "Add Orphan", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+            if (IsEditMode)
+            {
+                //UpdateOrphanInList((Orphan)result.Data);
+
+            }
+            else
+            {
+                AddOrphanToList((Orphan)result.Data);
+            }
+            StateHasChanged();
+        }
+
+    }
+
+
+}

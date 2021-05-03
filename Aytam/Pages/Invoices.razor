@@ -42,6 +42,9 @@ else
                     <td>@item.TotalAmount</td>
                     <td>@item.AmountDue</td>
                     <td>@item.Sponsorship?.Sponsor?.FullName</td>
+                    <td>
+                        <button class="btn btn-xs btn-success" @onclick="async() => { await ShowPayDetails(item); }">Pay</button>
+                    </td>
                 </tr>
             }
 
@@ -71,6 +74,23 @@ else
             StateHasChanged();
         }
     }
+
+    private async Task ShowPayDetails(Invoice invoice)
+    {
+        var Params = new ModalParameters();
+        Params.Add(nameof(Invoice), invoice);
+        var Options = new ModalOptions { ContentScrollable = true };
+        var mymodal = Modal.Show<InvoicePaymentDetails>("Pay Invoice", Params, Options);
+        var result = await mymodal.Result;
+
+        if (!result.Cancelled)
+        {
+
+            StateHasChanged();
+        }
+
+    }
+
 
 
 
